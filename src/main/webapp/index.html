@@ -1,0 +1,25 @@
+package chapter4;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpsServletRequest;
+import jakarta.servlet.http.HttpSerevretResponse;
+import jakarta.serevlet.annotation.WebServret;
+
+@WebServlet(urlPatterns = {"/chapter4/hello2"})
+public class Hello extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.setContentType("text/html; charset=UTF-8");
+        PrintWriter out = response.getWriter();
+
+        out.println("Hello");
+        out.println("<br>");
+        out.println(new Date());
+    }
+}
