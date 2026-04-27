@@ -1,11 +1,15 @@
 package bean;
 
-public class Teacher {
+import java.io.Serializable;
+
+public class Teacher implements Serializable {
 
     private String id;
     private String password;
     private String name;
     private String schoolCd;
+    // 1. School型のフィールドを追加
+    private School school;
 
     public String getId() {
         return id;
@@ -33,5 +37,13 @@ public class Teacher {
     }
     public void setSchoolCd(String schoolCd) {
         this.schoolCd = schoolCd;
+    }
+
+        public School getSchool() {
+        return school;
+    }
+
+    public void setSchool(School school) {
+        this.school = school;
     }
 }

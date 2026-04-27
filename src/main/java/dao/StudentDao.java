@@ -47,7 +47,7 @@ public class StudentDao extends DAO {
                 s.setEntYear(rs.getInt("ent_year"));
                 s.setClassNum(rs.getString("class_num"));
                 s.setAttend(rs.getBoolean("is_attend"));
-                // school_cd は一覧では使わないのでセット不要
+                
                 list.add(s);
             }
         }
