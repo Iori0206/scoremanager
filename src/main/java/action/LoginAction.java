@@ -1,10 +1,10 @@
 package action;
 
-import bean.School;
 import bean.Teacher;
 import dao.TeacherDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class LoginAction extends Action {
@@ -16,7 +16,7 @@ public class LoginAction extends Action {
             return "login.jsp";
         }
 
-        String id = req.getParameter("school_cd");   // ← login.jsp の入力名が school_cd なのでそのまま使う
+        String id = req.getParameter("school_cd"); 
         String password = req.getParameter("password");
 
         TeacherDao dao = new TeacherDao();
@@ -27,10 +27,9 @@ public class LoginAction extends Action {
             return "login.jsp";
         }
 
-        // ★ school_cd を School に詰めて session に保存
-        School school = new School();
-        school.setCd(teacher.getSchoolCd());
-        req.getSession().setAttribute("school", school);
+
+        HttpSession session = req.getSession();
+        session.setAttribute("user", teacher); 
 
         return "Menu.action";
     }

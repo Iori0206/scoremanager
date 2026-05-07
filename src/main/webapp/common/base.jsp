@@ -51,9 +51,11 @@
 <div class="layout">
 
   <nav class="sidebar">
-    <h5>メニュー</h5>
+    
     <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link" href="menu.jsp">メニュー</a>
       <li class="nav-item"><a class="nav-link" href="StudentList.action">学生管理</a></li>
+      <h6> 成績管理 </h6>
       <li class="nav-item"><a class="nav-link" href="TestRegist.action">成績登録</a></li>
       <li class="nav-item"><a class="nav-link" href="TestList.action">成績参照</a></li>
       <li class="nav-item"><a class="nav-link" href="SubjectList.action">科目管理</a></li>
@@ -68,7 +70,8 @@
 </div>
 
 <footer>
-  © 2026 熊本校
+  © 2023 TIC
+  大原学園
 </footer>
 
 </body>

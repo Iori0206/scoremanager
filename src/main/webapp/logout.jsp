@@ -34,7 +34,7 @@
 <!-- ログインとログアウトリンク -->
     <h3 class="mb-4">得点管理システム</h3>
 
-    <p><a href="Logout.action">ログアウト</a></p>
+    
 
     <div class="alert alert-success">
         ログアウトしました

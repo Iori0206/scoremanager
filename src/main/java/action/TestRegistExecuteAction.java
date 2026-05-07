@@ -5,7 +5,7 @@ import java.util.List;
 
 import bean.Student;
 import bean.Test;
-import dao.TestDAO;
+import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tool.Action;
@@ -45,7 +45,7 @@ public class TestRegistExecuteAction extends Action {
 
         // 3. DAOを使って一括保存
         if (!testList.isEmpty()) {
-            TestDAO tDao = new TestDAO();
+            TestDao tDao = new TestDao();
             tDao.save(testList); 
         }
 
