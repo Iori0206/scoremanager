@@ -1,34 +1,32 @@
 package action;
 
+import bean.School;
 import bean.Subject;
-import bean.Teacher;
 import dao.SubjectDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tool.Action;
 
 public class SubjectCreateExecuteAction extends Action {
+
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Teacher teacher = (Teacher) request.getSession().getAttribute("user");
-        if (teacher == null) return "login.jsp";
+        request.setCharacterEncoding("UTF-8");
 
         String cd = request.getParameter("cd");
         String name = request.getParameter("name");
+
+        School school = new School();
+        school.setCd("tes");
+
+        Subject subject = new Subject();
+        subject.setSchool(school);
+        subject.setCd(cd);
+        subject.setName(name);
+
         SubjectDao sDao = new SubjectDao();
+        sDao.insert(subject);
 
-        // DAOの引数に学校情報を追加して呼び出す
-        if (sDao.get(cd, teacher.getSchool()) == null) {
-            Subject subject = new Subject();
-            subject.setSubjectCd(cd);
-            subject.setName(name);
-
-            // 保存処理
-            sDao.save(subject, teacher.getSchool());
-            return "SubjectList.action";
-        } else {
-            request.setAttribute("errors", "科目コードが重複しています");
-            return "subject_create.jsp";
-        }
+        return "SubjectList.action";
     }
 }

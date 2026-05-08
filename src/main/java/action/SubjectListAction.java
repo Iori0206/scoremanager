@@ -2,28 +2,27 @@ package action;
 
 import java.util.List;
 
+import bean.School;
 import bean.Subject;
-import bean.Teacher;
-import dao.SubjectDao; // 修正：SubjectDAQではなくSubjectDao
+import dao.SubjectDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import tool.Action;
 
 public class SubjectListAction extends Action {
+
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // セッションからユーザー情報を取得
-        Teacher teacher = (Teacher) request.getSession().getAttribute("user");
-        if (teacher == null) return "login.jsp";
 
-        // DAOの生成（綴りに注意）
-        SubjectDao sDao = new SubjectDao();
-        
-        // ログイン教員の学校に紐づく科目をフィルタリングして取得
-        List<Subject> subjects = sDao.filter(teacher.getSchool());
+        request.setCharacterEncoding("UTF-8");
 
-        // リクエスト属性にセットしてJSPへ渡す
-        request.setAttribute("subjects", subjects);
+        School school = new School();
+        school.setCd("tes");
+
+        SubjectDao dao = new SubjectDao();
+        List<Subject> list = dao.filter(school);
+
+        request.setAttribute("subjects", list);
 
         return "subject_list.jsp";
     }
