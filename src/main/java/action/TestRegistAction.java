@@ -7,6 +7,7 @@ import bean.School;
 import bean.Subject;
 import bean.Teacher;
 import bean.TestScore;
+import dao.StudentDao;
 import dao.SubjectDao;
 import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,70 +28,72 @@ public class TestRegistAction extends Action {
             return "login.jsp";
         }
 
-        // 学校情報の補完（DB内の'tes'データと一致させるため）
-        if (teacher.getSchool() == null) {
-            School school = new School();
+        
+        School school = teacher.getSchool();
+        if (school == null) {
+            school = new School();
             school.setCd("tes"); 
             teacher.setSchool(school);
         }
 
         // 2. 検索パラメータ取得
-        String entYearStr = request.getParameter("f1"); // 入学年度
-        String classNum   = request.getParameter("f2"); // クラス番号
-        String subjectCd  = request.getParameter("f3"); // 科目コード
-        String numStr     = request.getParameter("f4"); // 回数
+        String entYearStr = request.getParameter("f1");
+        String classNum   = request.getParameter("f2");
+        String subjectCd  = request.getParameter("f3");
+        String numStr     = request.getParameter("f4");
 
         int entYear = 0;
         int num = 0;
 
-        // 数値変換処理
         try {
-            if (entYearStr != null && !entYearStr.isEmpty()) {
+            if (entYearStr != null && !entYearStr.isEmpty() && !entYearStr.equals("0")) {
                 entYear = Integer.parseInt(entYearStr);
             }
-            if (numStr != null && !numStr.isEmpty()) {
+            if (numStr != null && !numStr.isEmpty() && !numStr.equals("0")) {
                 num = Integer.parseInt(numStr);
             }
         } catch (NumberFormatException e) {
             System.out.println("数値変換エラー: " + e.getMessage());
         }
 
-        // 3. DAOの初期化
+        //  DAOの初期化
         SubjectDao sDao = new SubjectDao();
         TestDao tDao = new TestDao();
+        StudentDao stDao = new StudentDao();
 
-        // --- 追加：科目一覧を取得（プルダウン用） ---
-        List<Subject> subjects = sDao.filter(teacher.getSchool());
+        
+        List<Integer> entYearList = stDao.filterEntYear(school);
+        List<String> classNumList = stDao.filterClassNum(school);
+        List<Subject> subjects = sDao.filter(school);
+
+        request.setAttribute("ent_year_list", entYearList);
+        request.setAttribute("class_num_list", classNumList);
         request.setAttribute("subjects", subjects); 
 
-        // 選択された科目情報の取得
+        //  選択された科目情報の取得
         Subject subject = null;
-        if (subjectCd != null && !subjectCd.isEmpty()) {
-            subject = sDao.get(subjectCd, teacher.getSchool());
+        if (subjectCd != null && !subjectCd.isEmpty() && !subjectCd.equals("---")) {
+            subject = sDao.get(school, subjectCd);
         }
 
-        // 4. 学生情報（成績）の一覧取得
+        //  学生情報（成績）の一覧取得
         List<TestScore> tests = new ArrayList<>();
 
-        // 検索条件がすべて揃っている場合のみ、学生リストを取得
         if (entYear != 0 
-                && classNum != null && !classNum.isEmpty() && !classNum.equals("------")
+                && classNum != null && !classNum.isEmpty() && !classNum.equals("---")
                 && subject != null
                 && num != 0) {
-
-            tests = tDao.filter(entYear, classNum, subject, num, teacher.getSchool());
+            tests = tDao.filter(entYear, classNum, subject, num, school);
         }
 
-        // 5. JSPへ結果を転送
+        //  JSPへ値をセット
         request.setAttribute("ent_year", entYear);
         request.setAttribute("class_num", classNum);
         request.setAttribute("subject_cd", subjectCd);
         request.setAttribute("num", num);
-
         request.setAttribute("subject", subject);
         request.setAttribute("tests", tests); 
 
-        // 6. 画面表示
         return "test_regist.jsp";
     }
 }

@@ -11,32 +11,48 @@
         <form action="TestRegist.action" method="post" class="card shadow-sm mb-4">
             <div class="card-body bg-light">
                 <div class="row g-3 align-items-end">
+                    <%-- 入学年度：DBから取得したリストを回す --%>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold">入学年度</label>
                         <select name="f1" class="form-select">
-                            <c:forEach var="y" begin="2010" end="2030">
+                            <option value="0" ${empty ent_year or ent_year == 0 ? "selected" : ""}>---</option>
+                            <c:forEach var="y" items="${ent_year_list}">
                                 <option value="${y}" ${y == ent_year ? "selected" : ""}>${y}</option>
                             </c:forEach>
                         </select>
                     </div>
+
+                    <%-- クラス：DBから取得したリストを回す --%>
                     <div class="col-md-2">
                         <label class="form-label small fw-bold">クラス</label>
                         <select name="f2" class="form-select">
-                            <option value="131" ${class_num == "131" ? "selected" : ""}>131</option>
-                            <option value="201" ${class_num == "201" ? "selected" : ""}>201</option>
+                            <option value="---" ${class_num == "---" ? "selected" : ""}>---</option>
+                            <c:forEach var="c" items="${class_num_list}">
+                                <option value="${c}" ${c == class_num ? "selected" : ""}>${c}</option>
+                            </c:forEach>
                         </select>
                     </div>
+
+                    <%-- 科目：DBから取得した科目リスト（subjects）を回す --%>
                     <div class="col-md-3">
                         <label class="form-label small fw-bold">科目</label>
-                        <input type="text" name="f3" value="${subject_cd}" class="form-control" placeholder="科目コード">
+                        <select name="f3" class="form-select">
+                            <option value="---">---</option>
+                            <c:forEach var="s" items="${subjects}">
+                                <option value="${s.cd}" ${s.cd == subject_cd ? "selected" : ""}>${s.name}</option>
+                            </c:forEach>
+                        </select>
                     </div>
+
                     <div class="col-md-2">
                         <label class="form-label small fw-bold">回数</label>
                         <select name="f4" class="form-select">
+                            <option value="0" ${empty num or num == 0 ? 'selected' : ''}>---</option>
                             <option value="1" ${num == 1 ? 'selected' : ''}>1</option>
                             <option value="2" ${num == 2 ? 'selected' : ''}>2</option>
                         </select>
                     </div>
+
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-secondary w-100">検索</button>
                     </div>
@@ -61,13 +77,13 @@
                     <tbody>
                         <c:forEach var="t" items="${tests}">
                             <tr>
-                                <td>${t.student.entYear}</td>
-                                <td>${t.student.classNum}</td>
-                                <td>${t.student.no}</td>
-                                <td>${t.student.name}</td>
+                                <td>${ent_year}</td> 
+                                <td>${class_num}</td>
+                                <td>${t.studentNo}</td>
+                                <td>${t.studentName}</td>
                                 <td>
-                                    <input type="number" name="point_${t.student.no}" 
-                                           value="${t.point}" min="0" max="100" 
+                                    <input type="number" name="point_${t.studentNo}" 
+                                           value="${t.point == -1 ? '' : t.point}" min="0" max="100" 
                                            class="form-control d-inline-block">
                                 </td>
                             </tr>

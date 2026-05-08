@@ -12,26 +12,63 @@ import bean.Student;
 public class StudentDao extends DAO {
 
     /**
+     * 【追加】入学年度一覧の取得
+     * DBに登録されている学生の入学年度を重複なく取得します。
+     */
+    public List<Integer> filterEntYear(School school) throws Exception {
+        List<Integer> list = new ArrayList<>();
+        // DISTINCTを使って重複を排除し、新しい順（DESC）に並べる
+        String sql = "SELECT DISTINCT ent_year FROM student WHERE school_cd = ? ORDER BY ent_year DESC";
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, school.getCd());
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+                list.add(rs.getInt("ent_year"));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 【追加】クラス番号一覧の取得
+     * DBに登録されている学生のクラス番号を重複なく取得します。
+     */
+    public List<String> filterClassNum(School school) throws Exception {
+        List<String> list = new ArrayList<>();
+        // DISTINCTを使って重複を排除し、昇順（ASC）に並べる
+        String sql = "SELECT DISTINCT class_num FROM student WHERE school_cd = ? ORDER BY class_num ASC";
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, school.getCd());
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+                list.add(rs.getString("class_num"));
+            }
+        }
+        return list;
+    }
+
+    /**
      * 学生一覧の絞り込み
      */
     public List<Student> filter(School school, int entYear, String classNum, boolean isAttend) throws Exception {
         List<Student> list = new ArrayList<>();
         if (school == null) return list;
 
-        // 【デバッグ用】DBのデータ（tes）と強制的に一致させます。
-        // 画面にデータが出ることが確認できたら、この一行を消してください。
-        school.setCd("tes"); 
-
         StringBuilder sql = new StringBuilder("SELECT * FROM student WHERE school_cd = ?");
 
         if (entYear != 0) {
             sql.append(" AND ent_year = ?");
         }
-        if (classNum != null && !classNum.isEmpty() && !classNum.equals("------")) {
+        if (classNum != null && !classNum.isEmpty() && !classNum.equals("---")) {
             sql.append(" AND class_num = ?");
         }
         if (isAttend) {
-            // H2コンソールの画像に合わせて小文字の true で判定
             sql.append(" AND is_attend = true");
         }
         sql.append(" ORDER BY no ASC");
@@ -45,7 +82,7 @@ public class StudentDao extends DAO {
             if (entYear != 0) {
                 st.setInt(idx++, entYear);
             }
-            if (classNum != null && !classNum.isEmpty() && !classNum.equals("------")) {
+            if (classNum != null && !classNum.isEmpty() && !classNum.equals("---")) {
                 st.setString(idx++, classNum);
             }
 
