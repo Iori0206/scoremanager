@@ -11,103 +11,128 @@ import bean.Subject;
 
 public class SubjectDao extends DAO {
 
+    /**
+     * 科目一覧取得
+     */
     public List<Subject> filter(School school) throws Exception {
-        List<Subject> list = new ArrayList<Subject>();
+        List<Subject> list = new ArrayList<>();
 
-        Connection con = getConnection();
-        PreparedStatement st = con.prepareStatement(
-            "select * from subject where school_cd=?"
-        );
-        st.setString(1, school.getCd());
-        ResultSet rs = st.executeQuery();
-
-        while (rs.next()) {
-            Subject subject = new Subject();
-            subject.setSchool(school);
-            subject.setCd(rs.getString("cd"));
-            subject.setName(rs.getString("name"));
-            list.add(subject);
+        if (school == null) {
+            return list;
         }
 
-        rs.close();
-        st.close();
-        con.close();
+        String sql = "SELECT * FROM subject WHERE school_cd = ? ORDER BY cd";
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setString(1, school.getCd());
+
+            try (ResultSet rs = st.executeQuery()) {
+                while (rs.next()) {
+                    Subject subject = new Subject();
+                    subject.setSchool(school);
+                    subject.setCd(rs.getString("cd"));
+                    subject.setName(rs.getString("name"));
+                    list.add(subject);
+                }
+            }
+        }
 
         return list;
     }
 
+    /**
+     * 科目1件取得
+     */
     public Subject get(School school, String cd) throws Exception {
         Subject subject = null;
 
-        Connection con = getConnection();
-        PreparedStatement st = con.prepareStatement(
-            "select * from subject where school_cd=? and cd=?"
-        );
-        st.setString(1, school.getCd());
-        st.setString(2, cd);
-        ResultSet rs = st.executeQuery();
-
-        if (rs.next()) {
-            subject = new Subject();
-            subject.setSchool(school);
-            subject.setCd(rs.getString("cd"));
-            subject.setName(rs.getString("name"));
+        if (school == null || cd == null || cd.isEmpty()) {
+            return null;
         }
 
-        rs.close();
-        st.close();
-        con.close();
+        String sql = "SELECT * FROM subject WHERE school_cd = ? AND cd = ?";
+
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setString(1, school.getCd());
+            st.setString(2, cd);
+
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    subject = new Subject();
+                    subject.setSchool(school);
+                    subject.setCd(rs.getString("cd"));
+                    subject.setName(rs.getString("name"));
+                }
+            }
+        }
 
         return subject;
     }
 
+    /**
+     * 科目新規登録
+     */
     public int insert(Subject subject) throws Exception {
-        Connection con = getConnection();
-        PreparedStatement st = con.prepareStatement(
-            "insert into subject(school_cd, cd, name) values(?, ?, ?)"
-        );
-        st.setString(1, subject.getSchool().getCd());
-        st.setString(2, subject.getCd());
-        st.setString(3, subject.getName());
+        String sql = "INSERT INTO subject (school_cd, cd, name) VALUES (?, ?, ?)";
 
-        int count = st.executeUpdate();
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
 
-        st.close();
-        con.close();
+            st.setString(1, subject.getSchool().getCd());
+            st.setString(2, subject.getCd());
+            st.setString(3, subject.getName());
 
-        return count;
+            return st.executeUpdate();
+        }
     }
 
+    /**
+     * 科目更新
+     */
     public int update(Subject subject) throws Exception {
-        Connection con = getConnection();
-        PreparedStatement st = con.prepareStatement(
-            "update subject set name=? where school_cd=? and cd=?"
-        );
-        st.setString(1, subject.getName());
-        st.setString(2, subject.getSchool().getCd());
-        st.setString(3, subject.getCd());
+        String sql = "UPDATE subject SET name = ? WHERE school_cd = ? AND cd = ?";
 
-        int count = st.executeUpdate();
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
 
-        st.close();
-        con.close();
+            st.setString(1, subject.getName());
+            st.setString(2, subject.getSchool().getCd());
+            st.setString(3, subject.getCd());
 
-        return count;
+            return st.executeUpdate();
+        }
     }
 
+    /**
+     * 科目削除
+     */
     public int delete(School school, String cd) throws Exception {
-        Connection con = getConnection();
-        PreparedStatement st = con.prepareStatement(
-            "delete from subject where school_cd=? and cd=?"
-        );
-        st.setString(1, school.getCd());
-        st.setString(2, cd);
+        String sql = "DELETE FROM subject WHERE school_cd = ? AND cd = ?";
 
-        int count = st.executeUpdate();
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
 
-        st.close();
-        con.close();
+            st.setString(1, school.getCd());
+            st.setString(2, cd);
 
-        return count;
+            return st.executeUpdate();
+        }
+    }
+
+    /**
+     * 登録か更新か自動判定
+     */
+    public int save(Subject subject) throws Exception {
+        Subject old = get(subject.getSchool(), subject.getCd());
+
+        if (old == null) {
+            return insert(subject);
+        } else {
+            return update(subject);
+        }
     }
 }
