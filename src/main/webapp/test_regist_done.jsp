@@ -10,8 +10,8 @@
                 <h2 class="mt-3">成績の登録が完了しました</h2>
             </div>
             <div class="mt-5">
-                <a href="Menu.action" class="btn btn-primary me-2">メニューに戻る</a>
-                <a href="TestRegist.action" class="btn btn-outline-secondary">続けて登録する</a>
+                <a href="TestRegist.action" class="btn btn-primary me-2">戻る</a>
+                <a href="TestList.action" class="btn btn-outline-secondary">成績参照</a>
             </div>
         </section>
     </c:param>
