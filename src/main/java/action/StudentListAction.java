@@ -2,7 +2,7 @@ package action;
 
 import java.util.List;
 
-import bean.School; // 追加
+import bean.School;
 import bean.Student;
 import bean.Teacher;
 import dao.StudentDao;
@@ -12,32 +12,38 @@ import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class StudentListAction extends Action {
+
     @Override
-    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public String execute(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws Exception {
+
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
-        
-        // ログインチェック
-        if (teacher == null) return "login.jsp";
 
-        // --- NULL回避処理：学校情報がない場合に暫定セット ---
-        if (teacher.getSchool() == null) {
-            School school = new School();
-            // H2コンソールのデータに合わせて "tes" をセット
-            school.setCd("tes"); 
+        // 1. ログインチェック
+        if (teacher == null) {
+            return "login.jsp";
+        }
+
+        // 2. 学校情報取得
+        School school = teacher.getSchool();
+        
+        // ※DBのSTUDENTテーブルに登録されている「school_cd」に合わせて書き換えてください
+        if (school == null) {
+            school = new School();
+            school.setCd("tes"); // ← ここを "v01" など、実際のデータに合わせて修正
             teacher.setSchool(school);
         }
-        // ----------------------------------------------
 
-        // 1. パラメータの取得
-        String entYearStr = request.getParameter("ent_year"); 
-        String classNum = request.getParameter("class_num");   
-        String isAttendStr = request.getParameter("is_attend"); 
+        // 3. パラメータ取得
+        String entYearStr = request.getParameter("ent_year");
+        String classNum = request.getParameter("class_num");
+        String isAttendStr = request.getParameter("is_attend");
 
+        // 4. 入学年度の型変換
         int entYear = 0;
-        boolean isAttend = false;
-
-        // 2. 型の変換とバリデーション
         if (entYearStr != null && !entYearStr.isEmpty()) {
             try {
                 entYear = Integer.parseInt(entYearStr);
@@ -45,21 +51,34 @@ public class StudentListAction extends Action {
                 entYear = 0;
             }
         }
-        if (isAttendStr != null && isAttendStr.equals("1")) {
+
+        // 5. 在学フラグの処理（初回表示はデフォルトでチェックを入れる）
+        boolean isAttend = false;
+        if (isAttendStr == null) {
+            isAttend = true;
+            isAttendStr = "1";
+        } else if (isAttendStr.equals("1")) {
             isAttend = true;
         }
 
-        // 3. DAOの実行
+        // 6. DAO呼び出し
         StudentDao sDao = new StudentDao();
-        // teacher.getSchool() が確実に存在するので getCd() で落ちなくなります
-        List<Student> students = sDao.filter(teacher.getSchool(), entYear, classNum, isAttend);
+        
+        // 学生一覧・プルダウン用リストの取得
+        List<Student> students = sDao.filter(school, entYear, classNum, isAttend);
+        List<Integer> entYearList = sDao.filterEntYear(school);
+        List<String> classNumList = sDao.filterClassNum(school);
 
-        // 4. JSP側で選択状態を保持するためのセット
+        // 7. JSPへリクエスト属性をセット
+        request.setAttribute("students", students);
+        request.setAttribute("ent_year_list", entYearList);
+        request.setAttribute("class_num_list", classNumList);
+        
+        // 検索状態を保持
         request.setAttribute("ent_year", entYear);
         request.setAttribute("class_num", classNum);
         request.setAttribute("is_attend", isAttendStr);
-        request.setAttribute("students", students);
-        
+
         return "student_list.jsp";
     }
 }
