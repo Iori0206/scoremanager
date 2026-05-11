@@ -14,15 +14,13 @@ public class SubjectListAction extends Action {
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        request.setCharacterEncoding("UTF-8");
-
         School school = new School();
         school.setCd("tes");
 
         SubjectDao dao = new SubjectDao();
         List<Subject> list = dao.filter(school);
 
-        request.setAttribute("subjects", list);
+        request.setAttribute("list", list);
 
         return "subject_list.jsp";
     }
