@@ -1,248 +1,108 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="bean.Subject" %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>科目登録</title>
-<style>
-body {
-    margin: 0;
-    font-family: "Yu Gothic", "Meiryo", sans-serif;
-    background-color: #f7f7f7;
-    color: #333;
-}
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-.page {
-    width: 100%;
-    min-height: 100vh;
-}
+<c:import url="/common/base.jsp">
+    <c:param name="title">科目情報登録</c:param>
 
-.top-header {
-    background: #ffffff;
-    border-bottom: 1px solid #ddd;
-    padding: 24px 30px 20px 30px;
-    position: relative;
-}
+    <c:param name="content">
+        <style>
+            .main-content {
+                padding: 0 20px 20px 40px;
+                font-family: "Yu Gothic", "Meiryo", sans-serif;
+            }
 
-.top-header h1 {
-    margin: 0;
-    font-size: 34px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
+            .title-box {
+                background-color: #f8f9fa;
+                padding: 15px;
+                font-size: 20px;
+                font-weight: bold;
+                border-radius: 4px;
+                margin-bottom: 30px;
+            }
 
-.user-info {
-    position: absolute;
-    right: 30px;
-    top: 36px;
-    font-size: 15px;
-}
+            .form-label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #666;
+            }
 
-.user-info a {
-    color: #2f6df6;
-    margin-left: 14px;
-    text-decoration: underline;
-}
+            .custom-input {
+                width: 100%;
+                max-width: 600px;
+                padding: 10px;
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+                margin-bottom: 8px;
+                font-size: 14px;
+                box-sizing: border-box;
+            }
 
-.main-wrap {
-    display: flex;
-    min-height: 670px;
-}
+            .error-message {
+                color: orange;
+                font-size: 13px;
+                margin-bottom: 18px;
+            }
 
-.sidebar {
-    width: 210px;
-    background: #fafafa;
-    border-right: 1px solid #ddd;
-    padding: 34px 0 0 42px;
-    box-sizing: border-box;
-}
+            .btn-submit {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 25px;
+                border-radius: 4px;
+                font-size: 14px;
+                cursor: pointer;
+            }
 
-.sidebar a,
-.sidebar .menu-label {
-    display: block;
-    margin-bottom: 24px;
-    font-size: 16px;
-}
+            .btn-submit:hover {
+                background-color: #0069d9;
+            }
 
-.sidebar a {
-    color: #2f6df6;
-    text-decoration: underline;
-}
+            .back-link {
+                display: block;
+                margin-top: 15px;
+                color: #4a76d1;
+                text-decoration: underline;
+                font-size: 13px;
+            }
 
-.sidebar .menu-label {
-    color: #222;
-    font-weight: bold;
-    margin-bottom: 18px;
-}
+            .footer-copy {
+                text-align: center;
+                margin-top: 100px;
+                color: #888;
+                font-size: 12px;
+                line-height: 1.5;
+            }
+        </style>
 
-.content {
-    flex: 1;
-    padding: 34px 38px 0 38px;
-    box-sizing: border-box;
-}
+        <div class="main-content">
+            <div class="title-box">科目情報登録</div>
 
-.section-title {
-    background: #eef5ff;
-    padding: 18px 28px;
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 26px;
-}
+            <form action="SubjectCreateExecute.action" method="post">
+                <label class="form-label">科目コード</label>
+                <input type="text" name="cd" class="custom-input" value="${subject.cd}" placeholder="科目コードを入力してください">
+                <c:if test="${not empty cdError}">
+                    <div class="error-message">${cdError}</div>
+                </c:if>
 
-.form-box {
-    width: 700px;
-}
+                <label class="form-label">科目名</label>
+                <input type="text" name="name" class="custom-input" value="${subject.name}" placeholder="科目名を入力してください">
+                <c:if test="${not empty nameError}">
+                    <div class="error-message">${nameError}</div>
+                </c:if>
 
-.form-row {
-    margin-bottom: 22px;
-}
-
-.form-label {
-    display: block;
-    font-size: 15px;
-    margin-bottom: 8px;
-}
-
-.form-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px;
-    border: 1px solid #d5d5d5;
-    border-radius: 4px;
-    background: #fff;
-    font-size: 15px;
-}
-
-.error-message {
-    color: #f39c12;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-.button-row {
-    margin-top: 10px;
-}
-
-.btn {
-    background: #2f80ed;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 9px 18px;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.back-link {
-    display: inline-block;
-    margin-top: 16px;
-    color: #2f6df6;
-    text-decoration: underline;
-    font-size: 14px;
-}
-
-.footer {
-    text-align: center;
-    color: #777;
-    font-size: 14px;
-    padding: 18px 0 26px 0;
-    background: #f2f2f2;
-    border-top: 1px solid #ddd;
-}
-</style>
-</head>
-<body>
-
-<%
-Subject subject = (Subject)request.getAttribute("subject");
-if (subject == null) {
-    subject = new Subject();
-}
-
-String cd = subject.getCd() == null ? "" : subject.getCd();
-String name = subject.getName() == null ? "" : subject.getName();
-
-String cdError = (String)request.getAttribute("cdError");
-String nameError = (String)request.getAttribute("nameError");
-
-String userName = "管理者1";
-Object userObj = session.getAttribute("user");
-if (userObj != null) {
-    try {
-        java.lang.reflect.Method m = userObj.getClass().getMethod("getName");
-        Object result = m.invoke(userObj);
-        if (result != null) {
-            userName = result.toString();
-        }
-    } catch (Exception e) {
-        // 取れないときは固定表示
-    }
-}
-%>
-
-<div class="page">
-    <div class="top-header">
-        <h1>得点管理システム</h1>
-        <div class="user-info">
-            <%= userName %>様
-            <a href="Logout.action">ログアウト</a>
-        </div>
-    </div>
-
-    <div class="main-wrap">
-        <div class="sidebar">
-            <a href="Menu.action">メニュー</a>
-            <a href="StudentList.action">学生管理</a>
-
-            <div class="menu-label">成績管理</div>
-            <a href="TestRegist.action">成績登録</a>
-            <a href="ScoreSearch.action">成績参照</a>
-            <a href="SubjectList.action">科目管理</a>
-            <a href="#">クラス管理</a>
-        </div>
-
-        <div class="content">
-            <div class="section-title">科目情報登録</div>
-
-            <form action="SubjectCreateExecute.action" method="post" class="form-box">
-                <div class="form-row">
-                    <label class="form-label">科目コード</label>
-                    <input type="text" name="cd" class="form-input" value="<%= cd %>" placeholder="科目コードを入力してください">
-                    <%
-                    if (cdError != null) {
-                    %>
-                        <div class="error-message"><%= cdError %></div>
-                    <%
-                    }
-                    %>
-                </div>
-
-                <div class="form-row">
-                    <label class="form-label">科目名</label>
-                    <input type="text" name="name" class="form-input" value="<%= name %>" placeholder="科目名を入力してください">
-                    <%
-                    if (nameError != null) {
-                    %>
-                        <div class="error-message"><%= nameError %></div>
-                    <%
-                    }
-                    %>
-                </div>
-
-                <div class="button-row">
-                    <input type="submit" value="登録" class="btn">
+                <div>
+                    <button type="submit" class="btn-submit">登録して終了</button>
                 </div>
             </form>
 
             <a href="SubjectList.action" class="back-link">戻る</a>
+
+            <div class="footer-copy">
+                © 2023 TIC<br>
+                大原学園
+            </div>
         </div>
-    </div>
-
-    <div class="footer">
-        © 2023 TIC 大原学園
-    </div>
-</div>
-
-</body>
-</html>
+    </c:param>
+</c:import>

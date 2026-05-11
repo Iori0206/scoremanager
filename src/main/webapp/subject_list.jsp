@@ -1,260 +1,146 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List" %>
-<%@ page import="bean.Subject" %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>科目一覧</title>
-<style>
-body {
-    margin: 0;
-    font-family: "Yu Gothic", "Meiryo", sans-serif;
-    background-color: #f7f7f7;
-    color: #333;
-}
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-.page {
-    width: 100%;
-    min-height: 100vh;
-}
+<c:import url="/common/base.jsp">
+    <c:param name="title">科目管理</c:param>
 
-.top-header {
-    background: #ffffff;
-    border-bottom: 1px solid #ddd;
-    padding: 24px 30px 20px 30px;
-    position: relative;
-}
+    <c:param name="content">
+        <style>
+            .main-content {
+                flex: 1;
+                padding: 28px 44px 0 44px;
+                box-sizing: border-box;
+            }
 
-.top-header h1 {
-    margin: 0;
-    font-size: 34px;
-    font-weight: bold;
-    letter-spacing: 1px;
-}
+            .title-box {
+                background: #eef5ff;
+                height: 78px;
+                box-sizing: border-box;
+                padding: 18px 26px;
+                font-size: 26px;
+                font-weight: bold;
+                margin-bottom: 22px;
+            }
 
-.user-info {
-    position: absolute;
-    right: 30px;
-    top: 36px;
-    font-size: 15px;
-}
+            .regist-link {
+                text-align: right;
+                margin-bottom: 14px;
+                font-size: 15px;
+            }
 
-.user-info a {
-    color: #2f6df6;
-    margin-left: 14px;
-    text-decoration: underline;
-}
+            .regist-link a {
+                color: #2f6df6;
+                text-decoration: underline;
+            }
 
-.main-wrap {
-    display: flex;
-    min-height: 670px;
-}
+            .table-box {
+                background: #fff;
+                border: 1px solid #dcdcdc;
+            }
 
-.sidebar {
-    width: 210px;
-    background: #fafafa;
-    border-right: 1px solid #ddd;
-    padding: 34px 0 0 42px;
-    box-sizing: border-box;
-}
+            .subject-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
 
-.sidebar a,
-.sidebar .menu-label {
-    display: block;
-    margin-bottom: 24px;
-    font-size: 16px;
-}
+            .subject-table th,
+            .subject-table td {
+                border-bottom: 1px solid #dcdcdc;
+                padding: 18px 24px;
+                font-size: 15px;
+                text-align: left;
+            }
 
-.sidebar a {
-    color: #2f6df6;
-    text-decoration: underline;
-}
+            .subject-table th {
+                font-weight: bold;
+                background: #fff;
+            }
 
-.sidebar .menu-label {
-    color: #222;
-    font-weight: bold;
-    margin-bottom: 18px;
-}
+            .subject-table tr:last-child td {
+                border-bottom: none;
+            }
 
-.content {
-    flex: 1;
-    padding: 34px 38px 0 38px;
-    box-sizing: border-box;
-}
+            .code-col {
+                width: 18%;
+            }
 
-.section-title {
-    background: #eef5ff;
-    padding: 18px 28px;
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 26px;
-}
+            .name-col {
+                width: 46%;
+            }
 
-.top-link {
-    text-align: right;
-    margin-bottom: 18px;
-    font-size: 15px;
-}
+            .action-col {
+                width: 10%;
+                text-align: center !important;
+            }
 
-.top-link a {
-    color: #2f6df6;
-    text-decoration: underline;
-}
+            .subject-table a {
+                color: #2f6df6;
+                text-decoration: underline;
+            }
 
-.table-box {
-    background: #fff;
-    border: 1px solid #ddd;
-}
+            .empty-msg {
+                text-align: center;
+                padding: 90px 0;
+                font-size: 15px;
+                color: #555;
+            }
 
-.subject-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-}
+            .footer-copyright {
+                text-align: center;
+                margin-top: 18px;
+                color: #777;
+                font-size: 13px;
+                line-height: 1.7;
+                padding: 12px 0 14px 0;
+                background: #efefef;
+                border-top: 1px solid #dcdcdc;
+            }
+        </style>
 
-.subject-table th,
-.subject-table td {
-    border-bottom: 1px solid #ddd;
-    padding: 18px 30px;
-    font-size: 16px;
-    text-align: left;
-}
+        <div class="main-content">
+            <div class="title-box">科目管理</div>
 
-.subject-table th {
-    background: #fff;
-    font-weight: bold;
-}
-
-.subject-table tr:last-child td {
-    border-bottom: none;
-}
-
-.code-col {
-    width: 18%;
-}
-
-.name-col {
-    width: 52%;
-}
-
-.action-col {
-    width: 15%;
-    text-align: center !important;
-}
-
-.subject-table a {
-    color: #2f6df6;
-    text-decoration: underline;
-}
-
-.empty-row td {
-    height: 120px;
-    border-bottom: none;
-}
-
-.footer {
-    text-align: center;
-    color: #777;
-    font-size: 14px;
-    padding: 18px 0 26px 0;
-    background: #f2f2f2;
-    border-top: 1px solid #ddd;
-}
-</style>
-</head>
-<body>
-
-<%
-List<Subject> list = (List<Subject>)request.getAttribute("list");
-String userName = "管理者1";
-Object userObj = session.getAttribute("user");
-if (userObj != null) {
-    try {
-        java.lang.reflect.Method m = userObj.getClass().getMethod("getName");
-        Object result = m.invoke(userObj);
-        if (result != null) {
-            userName = result.toString();
-        }
-    } catch (Exception e) {
-        // 名前が取れなかったときは固定表示
-    }
-}
-%>
-
-<div class="page">
-    <div class="top-header">
-        <h1>得点管理システム</h1>
-        <div class="user-info">
-            <%= userName %>様
-            <a href="Logout.action">ログアウト</a>
-        </div>
-    </div>
-
-    <div class="main-wrap">
-        <div class="sidebar">
-            <a href="Menu.action">メニュー</a>
-            <a href="StudentList.action">学生管理</a>
-
-            <div class="menu-label">成績管理</div>
-            <a href="TestRegist.action">成績登録</a>
-            <a href="ScoreSearch.action">成績参照</a>
-            <a href="SubjectList.action">科目管理</a>
-            <a href="#">クラス管理</a>
-        </div>
-
-        <div class="content">
-            <div class="section-title">科目管理</div>
-
-            <div class="top-link">
+            <div class="regist-link">
                 <a href="SubjectCreate.action">新規登録</a>
             </div>
 
             <div class="table-box">
                 <table class="subject-table">
-                    <tr>
-                        <th class="code-col">科目コード</th>
-                        <th class="name-col">科目名</th>
-                        <th class="action-col"></th>
-                        <th class="action-col"></th>
-                    </tr>
-
-                    <%
-                    if (list != null && !list.isEmpty()) {
-                        for (Subject s : list) {
-                    %>
-                    <tr>
-                        <td><%= s.getCd() %></td>
-                        <td><%= s.getName() %></td>
-                        <td class="action-col">
-                            <a href="SubjectUpdate.action?cd=<%= s.getCd() %>">変更</a>
-                        </td>
-                        <td class="action-col">
-                            <a href="SubjectDelete.action?cd=<%= s.getCd() %>">削除</a>
-                        </td>
-                    </tr>
-                    <%
-                        }
-                    } else {
-                    %>
-                    <tr class="empty-row">
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <%
-                    }
-                    %>
+                    <thead>
+                        <tr>
+                            <th class="code-col">科目コード</th>
+                            <th class="name-col">科目名</th>
+                            <th class="action-col"></th>
+                            <th class="action-col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:choose>
+                            <c:when test="${not empty list}">
+                                <c:forEach var="s" items="${list}">
+                                    <tr>
+                                        <td>${s.cd}</td>
+                                        <td>${s.name}</td>
+                                        <td class="action-col">
+                                            <a href="SubjectUpdate.action?cd=${s.cd}">変更</a>
+                                        </td>
+                                        <td class="action-col">
+                                            <a href="SubjectDelete.action?cd=${s.cd}">削除</a>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </c:when>
+                            <c:otherwise>
+                                <tr>
+                                    <td colspan="4" class="empty-msg">科目情報が存在しませんでした</td>
+                                </tr>
+                            </c:otherwise>
+                        </c:choose>
+                    </tbody>
                 </table>
             </div>
         </div>
-    </div>
-
-    <div class="footer">
-        © 2023 TIC 大原学園
-    </div>
-</div>
-
-</body>
-</html>
+    </c:param>
+</c:import>

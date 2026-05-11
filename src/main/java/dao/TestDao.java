@@ -16,13 +16,12 @@ public class TestDao extends DAO {
 
     /**
      * 【科目別成績取得】
-     * DBにNO列がないため、NOの条件を除去しました。
+     * 検索結果の各成績データに学生情報を紐づけるよう修正しました。
      */
     public List<TestScore> filter(int entYear, String classNum, Subject subject, int num, School school) throws Exception {
         List<TestScore> list = new ArrayList<>();
         if (subject == null) return list;
 
-        // T.NO = ? の条件を削除
         String sql = "SELECT S.NO AS STUDENT_NO, S.NAME, T.POINT " +
                      "FROM STUDENT S " +
                      "LEFT JOIN TEST T ON T.STUDENT_NO = S.NO " +
@@ -32,7 +31,6 @@ public class TestDao extends DAO {
 
         try (Connection con = getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, subject.getCd());
-            // ps.setInt(2, num); // 回数のセットを削除
             ps.setInt(2, entYear);
             ps.setString(3, classNum);
             ps.setString(4, school.getCd());
@@ -40,12 +38,24 @@ public class TestDao extends DAO {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 TestScore ts = new TestScore();
+                
+                // --- 【修正箇所】JSPの ${t.student.name} 等に対応させるためオブジェクトを生成 ---
+                Student s = new Student();
+                s.setNo(rs.getString("STUDENT_NO"));
+                s.setName(rs.getString("NAME"));
+                s.setEntYear(entYear);
+                s.setClassNum(classNum);
+                
+                // TestScoreにStudentをセット（これでNullPointerExceptionが消えます）
+                ts.setStudent(s);
+                
+                // 直接値を保持する変数がある場合もセット
                 ts.setStudentNo(rs.getString("STUDENT_NO"));
                 ts.setStudentName(rs.getString("NAME"));
                 
                 int point = rs.getInt("POINT");
                 if (rs.wasNull()) {
-                    ts.setPoint(-1);
+                    ts.setPoint(-1); // データがない場合は-1
                 } else {
                     ts.setPoint(point);
                 }
@@ -57,10 +67,9 @@ public class TestDao extends DAO {
 
     /**
      * 【成績保存】
-     * DBにNO列がないため、NOを除外して保存（上書き）します。
+     * MERGE文を使用して、存在すれば更新、なければ挿入します。
      */
     public boolean save(List<Test> testList) throws Exception {
-        // キーから NO を削除。学生・科目・学校が同じなら点数を更新（MERGE）します。
         String sql = "MERGE INTO TEST (STUDENT_NO, SUBJECT_CD, SCHOOL_CD, POINT, CLASS_NUM) " +
                      "KEY(STUDENT_NO, SUBJECT_CD, SCHOOL_CD) VALUES (?, ?, ?, ?, ?)";
         
@@ -83,7 +92,6 @@ public class TestDao extends DAO {
      */
     public List<Test> filter(Student student) throws Exception {
         List<Test> list = new ArrayList<>();
-        // T.NO を取得対象から除外
         String sql = "SELECT t.*, s.NAME AS SUBJECT_NAME " +
                      "FROM TEST t " +
                      "JOIN SUBJECT s ON t.SUBJECT_CD = s.CD AND t.SCHOOL_CD = s.SCHOOL_CD " +
