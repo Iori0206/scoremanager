@@ -25,6 +25,9 @@ public class SubjectCreateExecuteAction extends Action {
         if (cd == null || cd.isEmpty()) {
             request.setAttribute("cdError", "科目コードを入力してください");
             hasError = true;
+        } else if (cd.length() != 1) {
+            request.setAttribute("cdError", "今のデータに合わせるなら1文字で入力してください");
+            hasError = true;
         }
 
         if (name == null || name.isEmpty()) {

@@ -8,132 +8,150 @@
 body {
     margin: 0;
     font-family: "Yu Gothic", "Meiryo", sans-serif;
-    background-color: #f5f5f5;
+    background-color: #f7f7f7;
     color: #333;
 }
 
-.wrapper {
-    width: 1000px;
-    margin: 20px auto;
+.page {
+    width: 100%;
+    min-height: 100vh;
 }
 
-.header {
-    background-color: #eaf3ff;
-    padding: 20px 25px;
+.top-header {
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    padding: 24px 30px 20px 30px;
     position: relative;
 }
 
-.header h1 {
+.top-header h1 {
     margin: 0;
-    font-size: 30px;
+    font-size: 34px;
     font-weight: bold;
+    letter-spacing: 1px;
 }
 
-.user-area {
+.user-info {
     position: absolute;
-    right: 25px;
-    top: 25px;
-    font-size: 13px;
+    right: 30px;
+    top: 36px;
+    font-size: 15px;
 }
 
-.user-area a {
-    color: #4a76d1;
-    margin-left: 10px;
-}
-
-.main-area {
-    display: flex;
-    margin-top: 18px;
-    min-height: 420px;
-}
-
-.sidebar {
-    width: 150px;
-    padding: 10px 15px 0 10px;
-    border-right: 1px solid #ddd;
-}
-
-.sidebar a,
-.sidebar .menu-title {
-    display: block;
-    margin-bottom: 12px;
-    font-size: 13px;
-}
-
-.sidebar a {
-    color: #4a76d1;
+.user-info a {
+    color: #2f6df6;
+    margin-left: 14px;
     text-decoration: underline;
 }
 
-.sidebar .menu-title {
-    font-weight: bold;
-    color: #333;
+.main-wrap {
+    display: flex;
+    min-height: 670px;
 }
 
-.content {
-    flex: 1;
-    padding-left: 20px;
+.sidebar {
+    width: 210px;
+    background: #fafafa;
+    border-right: 1px solid #ddd;
+    padding: 34px 0 0 42px;
+    box-sizing: border-box;
 }
 
-.section-title {
-    background-color: #eeeeee;
-    padding: 10px 15px;
-    font-size: 20px;
+.sidebar a,
+.sidebar .menu-label {
+    display: block;
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+.sidebar a {
+    color: #2f6df6;
+    text-decoration: underline;
+}
+
+.sidebar .menu-label {
+    color: #222;
     font-weight: bold;
     margin-bottom: 18px;
 }
 
-.success-box {
-    background-color: #9fd3b0;
-    color: #2e5339;
-    padding: 10px 14px;
-    font-size: 13px;
-    margin-bottom: 20px;
-    width: 620px;
+.content {
+    flex: 1;
+    padding: 34px 38px 0 38px;
     box-sizing: border-box;
 }
 
-.link-row {
-    margin-top: 12px;
+.section-title {
+    background: #eef5ff;
+    padding: 18px 28px;
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 26px;
 }
 
-.back-link {
-    display: inline-block;
-    margin-right: 24px;
-    color: #4a76d1;
-    font-size: 13px;
+.success-box {
+    width: 700px;
+    box-sizing: border-box;
+    background: #9fd3b0;
+    color: #2e5339;
+    padding: 12px 18px;
+    font-size: 15px;
+    margin-bottom: 24px;
+}
+
+.link-row a {
+    color: #2f6df6;
+    text-decoration: underline;
+    font-size: 14px;
+    margin-right: 28px;
 }
 
 .footer {
-    background-color: #efefef;
     text-align: center;
     color: #777;
-    font-size: 12px;
-    padding: 14px 0;
-    margin-top: 24px;
+    font-size: 14px;
+    padding: 18px 0 26px 0;
+    background: #f2f2f2;
+    border-top: 1px solid #ddd;
 }
 </style>
 </head>
 <body>
 
-<div class="wrapper">
+<%
+String userName = "管理者1";
+Object userObj = session.getAttribute("user");
+if (userObj != null) {
+    try {
+        java.lang.reflect.Method m = userObj.getClass().getMethod("getName");
+        Object result = m.invoke(userObj);
+        if (result != null) {
+            userName = result.toString();
+        }
+    } catch (Exception e) {
+    }
+}
+%>
 
-    <div class="header">
+<div class="page">
+    <div class="top-header">
         <h1>得点管理システム</h1>
-        <div class="user-area">
-            管理者1様
+        <div class="user-info">
+            <%= userName %>様
             <a href="Logout.action">ログアウト</a>
         </div>
     </div>
 
-    <div class="main-area">
+    <div class="main-wrap">
         <div class="sidebar">
             <a href="Menu.action">メニュー</a>
             <a href="StudentList.action">学生管理</a>
-            <div class="menu-title">成績管理</div>
+
+            <div class="menu-label">成績管理</div>
             <a href="TestRegist.action">成績登録</a>
             <a href="ScoreSearch.action">成績参照</a>
             <a href="SubjectList.action">科目管理</a>
+            <a href="#">クラス管理</a>
         </div>
 
         <div class="content">
@@ -144,15 +162,14 @@ body {
             </div>
 
             <div class="link-row">
-                <a href="SubjectCreate.action" class="back-link">戻る</a>
-                <a href="SubjectList.action" class="back-link">科目一覧</a>
+                <a href="SubjectCreate.action">戻る</a>
+                <a href="SubjectList.action">科目一覧</a>
             </div>
         </div>
     </div>
 
     <div class="footer">
-        © 2023 TIC<br>
-        大原学園
+        © 2023 TIC 大原学園
     </div>
 </div>
 
