@@ -1,9 +1,24 @@
 package bean;
 
-public class TestScore {
+import java.io.Serializable;
+
+public class TestScore implements Serializable {
+    // 追加：学生オブジェクトを丸ごと保持する変数
+    private Student student; 
+    
     private String studentNo;
     private String studentName;
     private int point;
+
+    // --- 追加：studentのゲッターとセッター ---
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+    // ------------------------------------
 
     public String getStudentNo() { return studentNo; }
     public void setStudentNo(String studentNo) { this.studentNo = studentNo; }
