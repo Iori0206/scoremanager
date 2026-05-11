@@ -16,17 +16,34 @@ public class SubjectCreateExecuteAction extends Action {
         String cd = request.getParameter("cd");
         String name = request.getParameter("name");
 
-        School school = new School();
-        school.setCd("tes");
-
         Subject subject = new Subject();
-        subject.setSchool(school);
         subject.setCd(cd);
         subject.setName(name);
 
-        SubjectDao sDao = new SubjectDao();
-        sDao.insert(subject);
+        boolean hasError = false;
 
-        return "SubjectList.action";
+        if (cd == null || cd.isEmpty()) {
+            request.setAttribute("cdError", "科目コードを入力してください");
+            hasError = true;
+        }
+
+        if (name == null || name.isEmpty()) {
+            request.setAttribute("nameError", "科目名を入力してください");
+            hasError = true;
+        }
+
+        if (hasError) {
+            request.setAttribute("subject", subject);
+            return "subject_create.jsp";
+        }
+
+        School school = new School();
+        school.setCd("tes");
+        subject.setSchool(school);
+
+        SubjectDao dao = new SubjectDao();
+        dao.insert(subject);
+
+        return "subject_create_done.jsp";
     }
 }

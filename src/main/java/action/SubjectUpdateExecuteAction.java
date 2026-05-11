@@ -11,6 +11,8 @@ public class SubjectUpdateExecuteAction extends Action {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setCharacterEncoding("UTF-8");
+
         String cd = request.getParameter("cd");
         String name = request.getParameter("name");
 
@@ -22,9 +24,15 @@ public class SubjectUpdateExecuteAction extends Action {
         subject.setCd(cd);
         subject.setName(name);
 
+        if (name == null || name.isEmpty()) {
+            request.setAttribute("subject", subject);
+            request.setAttribute("nameError", "科目名を入力してください");
+            return "subject_update.jsp";
+        }
+
         SubjectDao sDao = new SubjectDao();
         sDao.update(subject);
 
-        return "SubjectList.action";
+        return "subject_update_done.jsp";
     }
 }

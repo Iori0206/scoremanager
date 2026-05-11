@@ -19,7 +19,11 @@ public class SubjectUpdateAction extends Action {
         SubjectDao sDao = new SubjectDao();
         Subject subject = sDao.get(school, cd);
 
-        request.setAttribute("subject", subject);
+        if (subject == null) {
+            request.setAttribute("notFoundError", "対象の科目が見つかりません");
+        } else {
+            request.setAttribute("subject", subject);
+        }
 
         return "subject_update.jsp";
     }

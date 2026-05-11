@@ -1,10 +1,9 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="bean.Subject" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>科目登録</title>
+<title>科目削除完了</title>
 <style>
 body {
     margin: 0;
@@ -84,53 +83,23 @@ body {
     margin-bottom: 18px;
 }
 
-.form-area {
-    width: 600px;
-}
-
-.form-row {
-    margin-bottom: 18px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 6px;
+.success-box {
+    background-color: #9fd3b0;
+    color: #2e5339;
+    padding: 10px 14px;
     font-size: 13px;
-}
-
-.form-input {
-    width: 100%;
+    margin-bottom: 20px;
+    width: 620px;
     box-sizing: border-box;
-    padding: 10px;
-    border: 1px solid #cfcfcf;
-    border-radius: 4px;
-    font-size: 14px;
-    background: #fff;
 }
 
-.error-message {
-    color: orange;
-    font-size: 13px;
-    margin-top: 6px;
-}
-
-.button-row {
-    margin-top: 20px;
-}
-
-.btn {
-    background-color: #2f80ed;
-    color: white;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 4px;
-    font-size: 13px;
-    cursor: pointer;
+.link-row {
+    margin-top: 12px;
 }
 
 .back-link {
     display: inline-block;
-    margin-top: 14px;
+    margin-right: 24px;
     color: #4a76d1;
     font-size: 13px;
 }
@@ -146,15 +115,6 @@ body {
 </style>
 </head>
 <body>
-
-<%
-Subject subject = (Subject)request.getAttribute("subject");
-if (subject == null) {
-    subject = new Subject();
-}
-String cdError = (String)request.getAttribute("cdError");
-String nameError = (String)request.getAttribute("nameError");
-%>
 
 <div class="wrapper">
 
@@ -177,41 +137,15 @@ String nameError = (String)request.getAttribute("nameError");
         </div>
 
         <div class="content">
-            <div class="section-title">科目情報登録</div>
+            <div class="section-title">科目情報削除</div>
 
-            <form action="SubjectCreateExecute.action" method="post" class="form-area">
-                <div class="form-row">
-                    <label class="form-label">科目コード</label>
-                    <input type="text" name="cd" class="form-input"
-                           value="<%= subject.getCd() == null ? "" : subject.getCd() %>">
-                    <%
-                    if (cdError != null) {
-                    %>
-                        <div class="error-message"><%= cdError %></div>
-                    <%
-                    }
-                    %>
-                </div>
+            <div class="success-box">
+                削除が完了しました
+            </div>
 
-                <div class="form-row">
-                    <label class="form-label">科目名</label>
-                    <input type="text" name="name" class="form-input"
-                           value="<%= subject.getName() == null ? "" : subject.getName() %>">
-                    <%
-                    if (nameError != null) {
-                    %>
-                        <div class="error-message"><%= nameError %></div>
-                    <%
-                    }
-                    %>
-                </div>
-
-                <div class="button-row">
-                    <input type="submit" value="登録して終了" class="btn">
-                </div>
-            </form>
-
-            <a href="SubjectList.action" class="back-link">戻る</a>
+            <div class="link-row">
+                <a href="SubjectList.action" class="back-link">科目一覧</a>
+            </div>
         </div>
     </div>
 
