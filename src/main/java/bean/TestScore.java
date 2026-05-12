@@ -3,14 +3,14 @@ package bean;
 import java.io.Serializable;
 
 public class TestScore implements Serializable {
-    // 追加：学生オブジェクトを丸ごと保持する変数
-    private Student student; 
-    
-    private String studentNo;
-    private String studentName;
-    private int point;
+    private Student student;    // 学生情報
+    private Subject subject;    // 科目情報
+    private School school;      // 学校情報
+    private int num;           // 回数 (DBのCLASS_NUMに対応)
+    private int point;         // 得点
 
-    // --- 追加：studentのゲッターとセッター ---
+    // --- ゲッターとセッター ---
+
     public Student getStudent() {
         return student;
     }
@@ -18,14 +18,46 @@ public class TestScore implements Serializable {
     public void setStudent(Student student) {
         this.student = student;
     }
-    // ------------------------------------
 
-    public String getStudentNo() { return studentNo; }
-    public void setStudentNo(String studentNo) { this.studentNo = studentNo; }
+    public Subject getSubject() {
+        return subject;
+    }
 
-    public String getStudentName() { return studentName; }
-    public void setStudentName(String studentName) { this.studentName = studentName; }
+    // Actionでスペルミス(setSubiect)があった箇所です。ここを正しい綴りにします。
+    public void setSubject(Subject subject) {
+        this.subject = subject;
+    }
 
-    public int getPoint() { return point; }
-    public void setPoint(int point) { this.point = point; }
+    public School getSchool() {
+        return school;
+    }
+
+    public void setSchool(School school) {
+        this.school = school;
+    }
+
+    public int getNum() {
+        return num;
+    }
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
+
+    // 必要に応じて、以前あった個別のゲッターも残しておくと安全です
+    public String getStudentNo() {
+        return student != null ? student.getNo() : null;
+    }
+
+    public String getStudentName() {
+        return student != null ? student.getName() : null;
+    }
 }

@@ -14,7 +14,6 @@
   .content-area { flex: 1; padding: 2rem; }
   .filter-card { background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
   footer { text-align: center; padding: 0.5rem; background: #f8f9fa; border-top: 1px solid #ddd; }
-  /* テーブルの見た目を少し調整 */
   .table-container { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 </style>
 </head>
@@ -38,7 +37,7 @@
       <li class="nav-item"><a class="nav-link" href="StudentList.action">学生管理</a></li>
       <h6 class="mt-3 ps-3">成績管理</h6>
       <li class="nav-item"><a class="nav-link" href="TestRegist.action">成績登録</a></li>
-      <li class="nav-item"><a class="nav-link" href="TestList.action">成績参照</a></li>
+      <li class="nav-item"><a class="nav-link" href="ScoreList.action">成績参照</a></li>
       <li class="nav-item"><a class="nav-link" href="SubjectList.action">科目管理</a></li>
       <li class="nav-item"><a class="nav-link" href="ClassList.action">クラス管理</a></li>
     </ul>
@@ -53,16 +52,18 @@
             <div class="alert alert-danger">${error}</div>
         </c:if>
 
-        <%-- 絞り込み検索フォーム --%>
+        <%-- 1. 科目情報から検索フォーム --%>
         <div class="filter-card shadow-sm">
-            <form action="ScoreSearch.action" method="post">
+            <h6 class="mb-3 text-muted">科目情報から検索</h6>
+            <%-- methodをgetに変更（Actionクラスの初期判定と合わせるため） --%>
+            <form action="ScoreList.action" method="get">
                 <div class="row align-items-end">
                     <div class="col-md-3">
                         <label class="form-label">入学年度</label>
                         <select name="ent_year" class="form-select">
                             <option value="">選択してください</option>
                             <c:forEach var="y" items="${years}">
-                                <option value="${y}">${y}</option>
+                                <option value="${y}" ${String.valueOf(y) == ent_year ? 'selected' : ''}>${y}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -71,7 +72,7 @@
                         <select name="class_num" class="form-select">
                             <option value="">選択してください</option>
                             <c:forEach var="c" items="${classes}">
-                                <option value="${c}">${c}</option>
+                                <option value="${c}" ${c == class_num ? 'selected' : ''}>${c}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -80,7 +81,7 @@
                         <select name="subject_cd" class="form-select">
                             <option value="">選択してください</option>
                             <c:forEach var="s" items="${subjects}">
-                                <option value="${s.cd}">${s.name}</option>
+                                <option value="${s.cd}" ${s.cd == subject_cd ? 'selected' : ''}>${s.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -91,16 +92,20 @@
             </form>
         </div>
 
-        <%-- 学生番号直接検索フォーム --%>
+        <%-- 2. 学生情報から検索フォーム --%>
         <div class="filter-card shadow-sm">
-            <form action="ScoreSearch.action" method="post">
+            <h6 class="mb-3 text-muted">学生情報から検索</h6>
+            <form action="ScoreList.action" method="get">
                 <div class="row align-items-end">
                     <div class="col-md-10">
                         <label class="form-label">学生番号</label>
                         <select name="student_no" class="form-select">
                             <option value="">学生番号を選択してください</option>
                             <c:forEach var="stu" items="${students}">
-                                <option value="${stu.no}">${stu.no}：${stu.name}</option>
+                                <%-- valueには絶対「番号のみ」を入れる --%>
+                                <option value="${stu.no}" ${stu.no == student_no ? 'selected' : ''}>
+                                    ${stu.no}：${stu.name}
+                                </option>
                             </c:forEach>
                         </select>
                     </div>
@@ -111,27 +116,51 @@
             </form>
         </div>
 
+        <%-- 3. 検索結果の表示エリア --%>
         <c:if test="${not empty tests}">
             <div class="table-container mt-4">
-                <h5 class="mb-3">検索結果：${tests.size()} 件</h5>
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
+                <c:if test="${not empty student}">
+                    <h5 class="mb-3 text-primary">氏名：${student.name} (${student.no})</h5>
+                </c:if>
+                
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
                         <tr>
-                            <th>入学年度</th>
-                            <th>クラス</th>
-                            <th>学生番号</th>
-                            <th>氏名</th>
-                            <th>点数</th>
+                            <c:choose>
+                                <c:when test="${not empty student}">
+                                    <th>科目名</th>
+                                    <th>科目コード</th>
+                                    <th class="text-center">回数</th>
+                                    <th class="text-center">点数</th>
+                                </c:when>
+                                <c:otherwise>
+                                    <th>入学年度</th>
+                                    <th>クラス</th>
+                                    <th>学生番号</th>
+                                    <th>氏名</th>
+                                    <th class="text-center">点数</th>
+                                </c:otherwise>
+                            </c:choose>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="t" items="${tests}">
                             <tr>
-                                <td>${t.student.entYear}</td>
-                                <td>${t.student.classNum}</td>
-                                <td>${t.student.no}</td>
-                                <td>${t.student.name}</td>
-                                <td class="fw-bold">${t.point}</td>
+                                <c:choose>
+                                    <c:when test="${not empty student}">
+                                        <td>${t.subjectName}</td>
+                                        <td>${t.subjectCd}</td>
+                                        <td class="text-center">${t.num}</td>
+                                        <td class="text-center fw-bold">${t.point}</td>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <td class="text-center">${t.student.entYear}</td>
+                                        <td class="text-center">${t.student.classNum}</td>
+                                        <td>${t.student.no}</td>
+                                        <td>${t.student.name}</td>
+                                        <td class="text-center fw-bold">${t.point}</td>
+                                    </c:otherwise>
+                                </c:choose>
                             </tr>
                         </c:forEach>
                     </tbody>
