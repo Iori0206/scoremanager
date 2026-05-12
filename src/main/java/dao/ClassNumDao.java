@@ -19,6 +19,7 @@ public class ClassNumDao extends DAO {
             return null;
         }
 
+        // テーブルのカラム名が CLASS_NUM であることを前提としています
         String sql = "SELECT * FROM CLASS_NUM WHERE CLASS_NUM = ? AND SCHOOL_CD = ?";
 
         try (Connection con = getConnection();
@@ -96,6 +97,30 @@ public class ClassNumDao extends DAO {
             ps.setString(3, classNum.getSchool().getCd());
 
             return ps.executeUpdate() == 1;
+        }
+    }
+
+    /**
+     * 指定されたクラス番号と学校コードに一致するレコードを削除します
+     * ClassDeleteExecuteAction のエラーを解消するために追加
+     */
+    public boolean delete(String classNum, School school) throws Exception {
+        if (classNum == null || school == null) {
+            return false;
+        }
+
+        String sql = "DELETE FROM CLASS_NUM WHERE CLASS_NUM = ? AND SCHOOL_CD = ?";
+
+        try (Connection con = getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, classNum);
+            ps.setString(2, school.getCd());
+
+            // 削除された行数が1行以上であれば true を返す
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            throw e;
         }
     }
 }
