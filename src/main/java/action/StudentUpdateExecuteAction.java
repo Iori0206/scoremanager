@@ -2,9 +2,11 @@ package action;
 
 import bean.School;
 import bean.Student;
+import bean.Teacher;
 import dao.StudentDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class StudentUpdateExecuteAction extends Action {
@@ -13,6 +15,13 @@ public class StudentUpdateExecuteAction extends Action {
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         request.setCharacterEncoding("UTF-8");
+
+        HttpSession session = request.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
+
+        if (teacher == null) {
+            return "login.jsp";
+        }
 
         String no = request.getParameter("no");
         String name = request.getParameter("name");
@@ -34,8 +43,11 @@ public class StudentUpdateExecuteAction extends Action {
         student.setEntYear(entYear);
         student.setAttend(isAttend);
 
-        School school = new School();
-        school.setCd("tes");
+        School school = teacher.getSchool();
+        if (school == null) {
+            school = new School();
+            school.setCd("tes");
+        }
         student.setSchool(school);
 
         StudentDao dao = new StudentDao();

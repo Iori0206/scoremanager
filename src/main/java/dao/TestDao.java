@@ -103,10 +103,11 @@ public class TestDao extends DAO {
         if (subject == null) return list;
 
         String sql =
-            "SELECT S.NO AS STUDENT_NO, S.NAME, S.ENT_YEAR, S.CLASS_NUM, T.POINT, T.NO AS KAISU_VAL " +
+            "SELECT S.NO AS STUDENT_NO, S.NAME, S.ENT_YEAR, S.CLASS_NUM, T.POINT " +
             "FROM STUDENT S " +
             "LEFT JOIN TEST T ON T.STUDENT_NO = S.NO " +
-            "AND T.SUBJECT_CD = ? AND T.NO = ? AND T.SCHOOL_CD = ? " +
+            "AND T.SUBJECT_CD = ? " +
+            "AND T.SCHOOL_CD = ? " +
             "WHERE S.ENT_YEAR = ? AND S.CLASS_NUM = ? AND S.SCHOOL_CD = ? " +
             "ORDER BY S.NO ASC";
 
@@ -115,20 +116,18 @@ public class TestDao extends DAO {
             PreparedStatement ps = con.prepareStatement(sql)
         ) {
             ps.setString(1, subject.getCd());
-            ps.setInt(2, num);
-            ps.setString(3, school.getCd());
-            ps.setInt(4, entYear);
-            ps.setString(5, classNum);
-            ps.setString(6, school.getCd());
+            ps.setString(2, school.getCd());
+            ps.setInt(3, entYear);
+            ps.setString(4, classNum);
+            ps.setString(5, school.getCd());
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     TestScore ts = new TestScore();
+
                     Student s = new Student();
                     s.setNo(rs.getString("STUDENT_NO"));
                     s.setName(rs.getString("NAME"));
-                    
-                    // Beanのメソッド名に合わせて修正（アンダーバーを削除）
                     s.setEntYear(rs.getInt("ENT_YEAR"));
                     s.setClassNum(rs.getString("CLASS_NUM"));
                     s.setSchool(school);
@@ -139,9 +138,6 @@ public class TestDao extends DAO {
 
                     int point = rs.getInt("POINT");
                     ts.setPoint(rs.wasNull() ? -1 : point);
-                    
-                    // 検索画面表示用の回数をセット
-                    ts.setNum(rs.getInt("KAISU_VAL"));
 
                     list.add(ts);
                 }
@@ -149,4 +145,5 @@ public class TestDao extends DAO {
         }
         return list;
     }
+    
 }

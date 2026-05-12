@@ -49,7 +49,7 @@
             </form>
 
             <div class="mb-3">
-                <a href="StudentCreate.action" class="btn btn-success">新規登録</a>
+                <a href="StudentInsert.action" class="btn btn-success">新規登録</a>
             </div>
 
             <p>検索結果：${fn:length(students)}件</p>
@@ -85,7 +85,9 @@
                                             <c:otherwise>×</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><a href="StudentUpdate.action?no=${s.no}">変更</a></td>
+                                    <td>
+                                        <a href="StudentEdit.action?no=${s.no}">変更</a>
+                                    </td>
                                 </tr>
                             </c:forEach>
                         </c:otherwise>

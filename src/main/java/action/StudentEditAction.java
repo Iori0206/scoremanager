@@ -16,6 +16,11 @@ public class StudentEditAction extends Action {
         StudentDao dao = new StudentDao();
         Student student = dao.get(no);
 
+        if (student == null) {
+            request.setAttribute("error", "学生情報が見つかりませんでした。");
+            return "student_list.jsp";
+        }
+
         request.setAttribute("student", student);
 
         return "student_edit.jsp";
