@@ -44,7 +44,7 @@ public class TestRegistAction extends Action {
             entYearList.add(y);
         }
 
-        // JSPが参照している名前に合わせて渡す
+        // JSPが参照している名前に合わせて渡す。
         request.setAttribute("subjects", subjects);
         request.setAttribute("class_num_list", classNumList);
         request.setAttribute("ent_year_list", entYearList);
