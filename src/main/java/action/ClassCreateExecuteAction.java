@@ -13,7 +13,6 @@ public class ClassCreateExecuteAction extends Action {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-
         request.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession();
@@ -30,23 +29,22 @@ public class ClassCreateExecuteAction extends Action {
             return "class_create.jsp";
         }
 
-        School school = teacher.getSchool();
-        if (school == null) {
-            school = new School();
+        if (teacher.getSchool() == null) {
+            School school = new School();
             school.setCd(teacher.getSchoolCd());
             teacher.setSchool(school);
         }
 
         ClassNumDao dao = new ClassNumDao();
 
-        if (dao.get(class_num, school) != null) {
+        if (dao.get(class_num, teacher.getSchool()) != null) {
             request.setAttribute("error", "そのクラス番号はすでに存在します。");
             return "class_create.jsp";
         }
 
         ClassNum classNum = new ClassNum();
         classNum.setClass_num(class_num);
-        classNum.setSchool(school);
+        classNum.setSchool(teacher.getSchool());
 
         dao.save(classNum);
 

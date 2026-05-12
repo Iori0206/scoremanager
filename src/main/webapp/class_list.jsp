@@ -3,7 +3,6 @@
 
 <c:import url="/common/base.jsp">
     <c:param name="title">クラス一覧</c:param>
-
     <c:param name="scripts"></c:param>
 
     <c:param name="content">
@@ -18,20 +17,25 @@
                 <p style="color:red;">${error}</p>
             </c:if>
 
-            <table class="table">
+            <table class="table table-bordered">
                 <tr>
                     <th>クラス番号</th>
-                    <th>削除</th>
                 </tr>
 
-                <c:forEach var="c" items="${class_list}">
-                    <tr>
-                        <td>${c}</td>
-                        <td>
-                            <a href="ClassDelete.action?class_num=${c}">削除</a>
-                        </td>
-                    </tr>
-                </c:forEach>
+                <c:choose>
+                    <c:when test="${empty class_list}">
+                        <tr>
+                            <td>クラス情報が存在しませんでした。</td>
+                        </tr>
+                    </c:when>
+                    <c:otherwise>
+                        <c:forEach var="c" items="${class_list}">
+                            <tr>
+                                <td>${c}</td>
+                            </tr>
+                        </c:forEach>
+                    </c:otherwise>
+                </c:choose>
             </table>
 
             <div class="mt-3">

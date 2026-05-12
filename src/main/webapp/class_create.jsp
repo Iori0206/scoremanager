@@ -3,7 +3,6 @@
 
 <c:import url="/common/base.jsp">
     <c:param name="title">クラス登録</c:param>
-
     <c:param name="scripts"></c:param>
 
     <c:param name="content">
