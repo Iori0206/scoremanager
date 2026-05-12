@@ -1,13 +1,17 @@
 package action;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import bean.School;
 import bean.Student;
 import bean.Subject;
 import bean.Teacher;
 import bean.TestScore;
+import dao.ClassNumDao;
+import dao.StudentDao;
 import dao.SubjectDao;
 import dao.TestDao;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,10 +22,8 @@ import tool.Action;
 public class TestRegistExecuteAction extends Action {
 
     @Override
-    public String execute(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws Exception {
+    public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
@@ -31,97 +33,89 @@ public class TestRegistExecuteAction extends Action {
         }
 
         School school = teacher.getSchool();
-
-        // 1. パラメータの取得
-        String subjectCd = request.getParameter("f3"); // 科目コード
-        String numStr = request.getParameter("f4");    // 回数
-        String[] studentNos = request.getParameterValues("student_no");
-
-        // 2. 回数(num)の数値変換とバリデーション
-        int num = 0; 
-        try {
-            if (numStr != null) {
-                num = Integer.parseInt(numStr);
-            }
-        } catch (NumberFormatException e) {
-            num = 0;
+        if (school == null) {
+            school = new School();
+            school.setCd(teacher.getSchoolCd());
+            teacher.setSchool(school);
         }
 
-        // 回数が0以下（未選択や不正値）の場合はエラーを返して終了
-        if (num <= 0) {
-            request.setAttribute("error", "回数を正しく選択してください");
-            // 前の画面に戻る際、選択していた科目などを保持するためにセット
-            request.setAttribute("f3", subjectCd); 
-            return "test_regist.jsp";
-        }
+        String f1 = request.getParameter("f1");
+        String f2 = request.getParameter("f2");
+        String f3 = request.getParameter("f3");
+        String f4 = request.getParameter("f4");
 
-        // 3. 科目の存在チェック
-        SubjectDao sDao = new SubjectDao();
-        Subject subject = sDao.get(school, subjectCd);
+        int entYear = Integer.parseInt(f1);
+        int num = Integer.parseInt(f4);
 
-        if (subject == null) {
-            request.setAttribute("error", "科目が存在しません");
-            return "test_regist.jsp";
-        }
+        SubjectDao subjectDao = new SubjectDao();
+        Subject subject = subjectDao.get(school, f3);
 
-        // 4. 成績データのリスト作成
+        StudentDao studentDao = new StudentDao();
+        List<Student> students = studentDao.filter(school, entYear, f2, true);
+
         List<TestScore> testList = new ArrayList<>();
+        Map<String, String> pointErrors = new HashMap<>();
 
-        if (studentNos != null) {
-            for (String studentNo : studentNos) {
-                // 各学生の得点を取得
-                String pointStr = request.getParameter("point_" + studentNo);
+        for (Student student : students) {
+            String pointStr = request.getParameter("point_" + student.getNo());
 
-                // 得点が入力されていない場合はスキップ
-                if (pointStr == null || pointStr.isEmpty()) {
-                    continue;
-                }
+            TestScore ts = new TestScore();
+            ts.setStudent(student);
+            ts.setSubject(subject);
+            ts.setSchool(school);
+            ts.setNum(num);
 
-                int point;
+            if (pointStr == null || pointStr.isEmpty()) {
+                ts.setPoint(-1);
+            } else {
                 try {
-                    point = Integer.parseInt(pointStr);
+                    int point = Integer.parseInt(pointStr);
+
+                    if (point < 0 || point > 100) {
+                        pointErrors.put(student.getNo(), "0～100の範囲で入力してください");
+                        ts.setPoint(-1);
+                    } else {
+                        ts.setPoint(point);
+                    }
                 } catch (NumberFormatException e) {
-                    continue; // 数値以外はスキップ
+                    pointErrors.put(student.getNo(), "整数で入力してください");
+                    ts.setPoint(-1);
                 }
-
-                // 得点範囲チェック
-                if (point < 0 || point > 100) {
-                    continue;
-                }
-
-                // 保存用データの作成
-                TestScore test = new TestScore();
-                Student student = new Student();
-                student.setNo(studentNo);
-
-                test.setStudent(student);
-                test.setSubject(subject);
-                test.setSchool(school);
-                test.setNum(num);   // ここで確実に選択された回数をセット
-                test.setPoint(point);
-
-                testList.add(test);
             }
+
+            testList.add(ts);
         }
 
-        // 5. データベースへの保存処理
-        if (!testList.isEmpty()) {
-            TestDao tDao = new TestDao();
-            // saveメソッド内で既存データの削除(delete)と新規登録(insert)が行われる想定
-            boolean result = tDao.save(testList);
+        if (!pointErrors.isEmpty()) {
+            ClassNumDao classNumDao = new ClassNumDao();
+            List<String> classNumList = classNumDao.filter(school);
 
-            if (!result) {
-                request.setAttribute("error", "成績登録に失敗しました。データベースを確認してください。");
-                return "test_regist.jsp";
+            List<Integer> entYearList = new ArrayList<>();
+            for (int y = 2020; y <= 2030; y++) {
+                entYearList.add(y);
             }
-        } else {
-            // 得点が一つも入力されていなかった場合
-            request.setAttribute("error", "登録する得点が入力されていません");
+
+            request.setAttribute("subjects", subjectDao.filter(school));
+            request.setAttribute("class_num_list", classNumList);
+            request.setAttribute("ent_year_list", entYearList);
+
+            request.setAttribute("tests", testList);
+            request.setAttribute("subject", subject);
+            request.setAttribute("subject_cd", f3);
+            request.setAttribute("ent_year", entYear);
+            request.setAttribute("class_num", f2);
+            request.setAttribute("num", num);
+            request.setAttribute("pointErrors", pointErrors);
+
             return "test_regist.jsp";
         }
 
-        // 6. 完了画面への遷移準備
-        request.setAttribute("subjectName", subject.getName());
+        TestDao testDao = new TestDao();
+        testDao.save(testList);
+
+        request.setAttribute("subject", subject);
+        request.setAttribute("ent_year", entYear);
+        request.setAttribute("class_num", f2);
         request.setAttribute("num", num);
 
         return "test_regist_done.jsp";

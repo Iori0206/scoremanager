@@ -55,6 +55,11 @@ public class TestListAction extends Action {
         String subjectCd = req.getParameter("subject_cd");
         String studentNo = req.getParameter("student_no");
 
+        req.setAttribute("ent_year", entYearStr);
+        req.setAttribute("class_num", classNum);
+        req.setAttribute("subject_cd", subjectCd);
+        req.setAttribute("student_no", studentNo);
+
         TestDao tDao = new TestDao();
         List<TestScore> list = null;
 
@@ -63,6 +68,7 @@ public class TestListAction extends Action {
 
             if (targetStudent != null) {
                 list = tDao.filter(targetStudent);
+                req.setAttribute("student", targetStudent);
             } else {
                 req.setAttribute("error", "該当する学生が見つかりませんでした。");
             }
@@ -76,6 +82,7 @@ public class TestListAction extends Action {
 
             if (subject != null) {
                 list = tDao.filter(entYear, classNum, subject, 1, school);
+                req.setAttribute("subject", subject);
             } else {
                 req.setAttribute("error", "科目情報が見つかりませんでした。");
             }
