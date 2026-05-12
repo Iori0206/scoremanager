@@ -1,5 +1,6 @@
 package action;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import bean.School;
@@ -29,14 +30,24 @@ public class TestRegistAction extends Action {
             teacher.setSchool(school);
         }
 
+        // 科目一覧
         SubjectDao subjectDao = new SubjectDao();
-        List<Subject> subjectList = subjectDao.filter(teacher.getSchool());
+        List<Subject> subjects = subjectDao.filter(teacher.getSchool());
 
+        // クラス一覧
         ClassNumDao classNumDao = new ClassNumDao();
         List<String> classNumList = classNumDao.filter(teacher.getSchool());
 
-        request.setAttribute("subject_list", subjectList);
+        // 入学年度一覧（最低限版）
+        List<Integer> entYearList = new ArrayList<>();
+        for (int y = 2020; y <= 2030; y++) {
+            entYearList.add(y);
+        }
+
+        // JSPが参照している名前に合わせて渡す
+        request.setAttribute("subjects", subjects);
         request.setAttribute("class_num_list", classNumList);
+        request.setAttribute("ent_year_list", entYearList);
 
         return "test_regist.jsp";
     }
