@@ -157,6 +157,22 @@ public class StudentDao extends DAO {
     }
 
     /**
+     * 学生変更
+     */
+    public boolean update(Student student) throws Exception {
+        String sql = "UPDATE student SET name = ?, ent_year = ?, class_num = ?, is_attend = ? WHERE no = ?";
+        try (Connection con = getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+            st.setString(1, student.getName());
+            st.setInt(2, student.getEntYear());
+            st.setString(3, student.getClassNum());
+            st.setBoolean(4, student.isAttend());
+            st.setString(5, student.getNo());
+            return st.executeUpdate() == 1;
+        }
+    }
+
+    /**
      * 学生1件取得
      */
     public Student get(String no) throws Exception {
