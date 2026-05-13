@@ -15,13 +15,12 @@ public class TestDao extends DAO {
 
     /**
      * 成績保存
-     * ※ 現在のDB構成に合わせて NO 列は使わない
      */
     public boolean save(List<TestScore> testList) throws Exception {
         String sql =
-            "MERGE INTO TEST (STUDENT_NO, SUBJECT_CD, SCHOOL_CD, POINT) " +
-            "KEY(STUDENT_NO, SUBJECT_CD, SCHOOL_CD) " +
-            "VALUES (?, ?, ?, ?)";
+            "MERGE INTO TEST (STUDENT_NO, SUBJECT_CD, SCHOOL_CD, NO, POINT) " +
+            "KEY(STUDENT_NO, SUBJECT_CD, SCHOOL_CD, NO) " +
+            "VALUES (?, ?, ?, ?, ?)";
 
         try (
             Connection con = getConnection();
@@ -37,7 +36,8 @@ public class TestDao extends DAO {
                 ps.setString(1, ts.getStudent().getNo());
                 ps.setString(2, ts.getSubject().getCd());
                 ps.setString(3, ts.getSchool().getCd());
-                ps.setInt(4, ts.getPoint());
+                ps.setInt(4, ts.getNum());
+                ps.setInt(5, ts.getPoint());
                 ps.addBatch();
             }
 
@@ -49,7 +49,7 @@ public class TestDao extends DAO {
 
     /**
      * 学生別成績取得
-     * 科目一覧を基準にして、未登録科目も表示する
+     * 科目×回数で表示
      */
     public List<TestScore> filter(Student student) throws Exception {
         List<TestScore> list = new ArrayList<>();
@@ -59,13 +59,14 @@ public class TestDao extends DAO {
         }
 
         String sql =
-            "SELECT SUB.CD AS SUBJECT_CD, SUB.NAME AS SUBJECT_NAME, T.POINT " +
+            "SELECT SUB.CD AS SUBJECT_CD, SUB.NAME AS SUBJECT_NAME, " +
+            "       T.NO AS TEST_NO, T.POINT " +
             "FROM SUBJECT SUB " +
             "LEFT JOIN TEST T ON T.SUBJECT_CD = SUB.CD " +
             "AND T.STUDENT_NO = ? " +
             "AND T.SCHOOL_CD = SUB.SCHOOL_CD " +
             "WHERE SUB.SCHOOL_CD = ? " +
-            "ORDER BY SUB.CD ASC";
+            "ORDER BY SUB.CD ASC, T.NO ASC";
 
         try (
             Connection con = getConnection();
@@ -85,7 +86,9 @@ public class TestDao extends DAO {
                     ts.setStudent(student);
                     ts.setSubject(subject);
                     ts.setSchool(student.getSchool());
-                    ts.setNum(1);
+
+                    int no = rs.getInt("TEST_NO");
+                    ts.setNum(rs.wasNull() ? 1 : no);
 
                     int point = rs.getInt("POINT");
                     ts.setPoint(rs.wasNull() ? -1 : point);
@@ -108,11 +111,12 @@ public class TestDao extends DAO {
         }
 
         String sql =
-            "SELECT S.NO AS STUDENT_NO, S.NAME, S.ENT_YEAR, S.CLASS_NUM, T.POINT " +
+            "SELECT S.NO AS STUDENT_NO, S.NAME, S.ENT_YEAR, S.CLASS_NUM, T.POINT, T.NO AS TEST_NO " +
             "FROM STUDENT S " +
             "LEFT JOIN TEST T ON T.STUDENT_NO = S.NO " +
             "AND T.SUBJECT_CD = ? " +
             "AND T.SCHOOL_CD = ? " +
+            "AND T.NO = ? " +
             "WHERE S.ENT_YEAR = ? " +
             "AND S.CLASS_NUM = ? " +
             "AND S.SCHOOL_CD = ? " +
@@ -124,9 +128,10 @@ public class TestDao extends DAO {
         ) {
             ps.setString(1, subject.getCd());
             ps.setString(2, school.getCd());
-            ps.setInt(3, entYear);
-            ps.setString(4, classNum);
-            ps.setString(5, school.getCd());
+            ps.setInt(3, num);
+            ps.setInt(4, entYear);
+            ps.setString(5, classNum);
+            ps.setString(6, school.getCd());
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -142,7 +147,9 @@ public class TestDao extends DAO {
                     ts.setStudent(s);
                     ts.setSubject(subject);
                     ts.setSchool(school);
-                    ts.setNum(num);
+
+                    int testNo = rs.getInt("TEST_NO");
+                    ts.setNum(rs.wasNull() ? num : testNo);
 
                     int point = rs.getInt("POINT");
                     ts.setPoint(rs.wasNull() ? -1 : point);

@@ -124,6 +124,7 @@
                                 <c:when test="${not empty student}">
                                     <th>科目名</th>
                                     <th>科目コード</th>
+                                    <th class="text-center">回数</th>
                                     <th class="text-center">点数</th>
                                 </c:when>
                                 <c:otherwise>
@@ -143,6 +144,7 @@
                                     <c:when test="${not empty student}">
                                         <td>${t.subjectName}</td>
                                         <td>${t.subjectCd}</td>
+                                        <td class="text-center">${t.num}</td>
                                         <td class="text-center fw-bold">
                                             <c:choose>
                                                 <c:when test="${t.point == -1}">-</c:when>
