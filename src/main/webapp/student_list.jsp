@@ -15,35 +15,35 @@
 
                     <div class="col-3">
                         <label class="form-label">入学年度</label>
-                        <select name="ent_year" class="form-select">
-                            <option value="">------</option>
-                            <c:forEach var="y" begin="2010" end="2030">
-                                <option value="${y}" ${y == ent_year ? "selected" : ""}>${y}</option>
+                        <select name="f1" class="form-select">
+                            <option value="0">------</option>
+                            <c:forEach var="y" items="${ent_year_list}">
+                                <option value="${y}" ${y == f1 ? "selected" : ""}>${y}</option>
                             </c:forEach>
                         </select>
                     </div>
 
                     <div class="col-3">
                         <label class="form-label">クラス</label>
-                        <select name="class_num" class="form-select">
-                            <option value="">------</option>
+                        <select name="f2" class="form-select">
+                            <option value="0">------</option>
                             <c:forEach var="c" items="${class_num_list}">
-                                <option value="${c}" ${c == class_num ? "selected" : ""}>${c}</option>
+                                <option value="${c}" ${c == f2 ? "selected" : ""}>${c}</option>
                             </c:forEach>
                         </select>
                     </div>
 
                     <div class="col-3 d-flex align-items-end">
                         <div class="form-check">
-                            <input type="checkbox" name="is_attend" value="1"
+                            <input type="checkbox" name="f3" value="t"
                                    class="form-check-input"
-                                   ${is_attend == "1" ? "checked" : ""}>
+                                   ${f3 ? "checked" : ""}>
                             <label class="form-check-label">在学中</label>
                         </div>
                     </div>
 
                     <div class="col-3 d-flex align-items-end">
-                        <button class="btn btn-primary">絞込み</button>
+                        <button class="btn btn-primary" id="filter_button">絞込み</button>
                     </div>
                 </div>
             </form>
@@ -61,7 +61,7 @@
                         <th>学生番号</th>
                         <th>氏名</th>
                         <th>クラス</th>
-                        <th>在学中</th>
+                        <th class="text-center">在学中</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -79,14 +79,15 @@
                                     <td>${s.no}</td>
                                     <td>${s.name}</td>
                                     <td>${s.classNum}</td>
-                                    <td>
+                                    <td class="text-center">
+                                        <%-- 修正箇所：isAttend() メソッドに対応するプロパティ名は attend --%>
                                         <c:choose>
-                                            <c:when test="${s.attend}">○</c:when>
+                                            <c:when test="${s.attend}">〇</c:when>
                                             <c:otherwise>×</c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <a href="StudentEdit.action?no=${s.no}">変更</a>
+                                        <a href="StudentUpdate.action?no=${s.no}">変更</a>
                                     </td>
                                 </tr>
                             </c:forEach>
