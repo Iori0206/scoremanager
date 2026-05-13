@@ -1,5 +1,6 @@
 package action;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,15 +18,18 @@ public class StudentInsertAction extends Action {
 
     @Override
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // 文字エンコーディングの設定
         request.setCharacterEncoding("UTF-8");
 
         HttpSession session = request.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
 
+        // 1. ログインチェック
         if (teacher == null) {
             return "login.jsp";
         }
 
+        // 2. 学校情報の取得（教員に紐づく学校コードを使用）
         School school = teacher.getSchool();
         if (school == null) {
             school = new School();
@@ -33,38 +37,46 @@ public class StudentInsertAction extends Action {
             teacher.setSchool(school);
         }
 
-        // クラス一覧
+        // 3. 表示用データの準備（GET/POST共通）
+        
+        // --- クラス一覧の取得 ---
+        // ログインユーザの学校に該当する「クラス番号テーブル」から値を取得
         ClassNumDao classNumDao = new ClassNumDao();
-        List<String> classNumList = classNumDao.filter(school);
+        List<String> classNumList = classNumDao.filter(school); 
         request.setAttribute("class_num_list", classNumList);
 
-        // 入学年度一覧
+        // --- 入学年度一覧の取得 ---
+        // 今年を基準に前後10年のリストを生成
         List<Integer> entYearList = new ArrayList<>();
-        for (int y = 2020; y <= 2030; y++) {
+        int currentYear = LocalDate.now().getYear();
+        for (int y = currentYear - 10; y <= currentYear + 10; y++) {
             entYearList.add(y);
         }
         request.setAttribute("ent_year_list", entYearList);
 
-        // GETなら入力画面表示
+        // 4. 画面表示処理（GETリクエスト）
         if ("GET".equalsIgnoreCase(request.getMethod())) {
             return "student_insert.jsp";
         }
 
+        // 5. 登録処理（POSTリクエスト）
+        
+        // リクエストパラメータの取得
         String entYearStr = request.getParameter("ent_year");
         String no = request.getParameter("no");
         String name = request.getParameter("name");
         String classNum = request.getParameter("class_num");
 
-        // 入力値保持
+        // 入力値の保持（エラー時に値を引き継ぐため）
         request.setAttribute("ent_year", entYearStr);
         request.setAttribute("no", no);
         request.setAttribute("name", name);
         request.setAttribute("class_num", classNum);
 
+        // バリデーション
         boolean hasError = false;
 
-        // エラーメッセージ
-        if (entYearStr == null || entYearStr.isEmpty() || "0".equals(entYearStr)) {
+        if (entYearStr == null || entYearStr.isEmpty()) {
             request.setAttribute("entYearError", "入学年度を選択してください");
             hasError = true;
         }
@@ -79,35 +91,37 @@ public class StudentInsertAction extends Action {
             hasError = true;
         }
 
-        if (classNum == null || classNum.isEmpty() || "---".equals(classNum)) {
+        if (classNum == null || classNum.isEmpty()) {
             request.setAttribute("classNumError", "クラスを選択してください");
             hasError = true;
         }
 
         StudentDao studentDao = new StudentDao();
 
-        // 学生番号重複チェック
+        // 学生番号の重複チェック
         if (!hasError && studentDao.get(no) != null) {
             request.setAttribute("noError", "学生番号が重複しています");
             hasError = true;
         }
 
+        // エラーがある場合は入力画面へ戻す
         if (hasError) {
             return "student_insert.jsp";
         }
 
+        // Studentオブジェクトの作成と保存
         int entYear = Integer.parseInt(entYearStr);
-
         Student student = new Student();
         student.setNo(no);
         student.setName(name);
         student.setEntYear(entYear);
         student.setClassNum(classNum);
-        student.setAttend(true);
+        student.setAttend(true); // 新規登録時は「在学中」
         student.setSchool(school);
 
         studentDao.save(student);
 
+        // 完了画面へ
         return "student_insert_done.jsp";
     }
 }
