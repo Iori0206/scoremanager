@@ -17,7 +17,8 @@
                         <label class="form-label">入学年度</label>
                         <select name="ent_year" class="form-select">
                             <option value="">------</option>
-                            <c:forEach var="y" begin="2010" end="2030">
+                            <%-- 修正箇所：固定の数値ループから、登録されている年度のリストに変更 --%>
+                            <c:forEach var="y" items="${ent_year_list}">
                                 <option value="${y}" ${y == ent_year ? "selected" : ""}>${y}</option>
                             </c:forEach>
                         </select>
