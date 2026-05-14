@@ -9,6 +9,7 @@ public class TestScore implements Serializable {
     private School school;
     private int num;
     private int point;
+    private int point2;
 
     public Student getStudent() {
         return student;
@@ -48,6 +49,14 @@ public class TestScore implements Serializable {
 
     public void setPoint(int point) {
         this.point = point;
+    }
+
+    public int getPoint2() {
+        return point2;
+    }
+
+    public void setPoint2(int point2) {
+        this.point2 = point2;
     }
 
     public String getStudentNo() {
