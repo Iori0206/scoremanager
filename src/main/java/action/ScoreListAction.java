@@ -6,7 +6,6 @@ import bean.School;
 import bean.Student;
 import bean.Subject;
 import bean.Teacher;
-import bean.TestListStudent;
 import bean.TestScore;
 import dao.ClassNumDao;
 import dao.StudentDao;
@@ -77,7 +76,7 @@ public class ScoreListAction extends Action {
             if (student != null && student.getSchool().getCd().equals(school.getCd())) {
                 req.setAttribute("student", student);
                 TestListStudentDAO tlsDao = new TestListStudentDAO();
-                List<TestListStudent> tests = tlsDao.filter(student);
+                List<TestScore> tests = tlsDao.filter(student);
                 
                 if (tests != null && !tests.isEmpty()) {
                     req.setAttribute("tests", tests); 
