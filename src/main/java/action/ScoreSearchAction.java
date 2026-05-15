@@ -24,7 +24,6 @@ public class ScoreSearchAction extends Action {
         HttpSession session = req.getSession();
         Teacher teacher = (Teacher) session.getAttribute("user");
 
-        // 1. ログインチェック
         if (teacher == null) {
             return "login.jsp";
         }
@@ -36,74 +35,96 @@ public class ScoreSearchAction extends Action {
             teacher.setSchool(school);
         }
 
-        // 2. 画面部品の準備
         StudentDao stDao = new StudentDao();
-        ClassNumDao cdao = new ClassNumDao();
-        SubjectDao sdao = new SubjectDao();
+        ClassNumDao cDao = new ClassNumDao();
+        SubjectDao subDao = new SubjectDao();
+        TestDao testDao = new TestDao();
 
         req.setAttribute("years", stDao.filterEntYear(school));
-        req.setAttribute("classes", cdao.filter(school));
-        req.setAttribute("subjects", sdao.filter(school));
-        req.setAttribute("students", stDao.filter(school));
+        req.setAttribute("classes", cDao.filter(school));
+        req.setAttribute("subjects", subDao.filter(school));
 
-        // 3. パラメータ取得
         String entYearStr = req.getParameter("ent_year");
         String classNum = req.getParameter("class_num");
         String subjectCd = req.getParameter("subject_cd");
         String studentNo = req.getParameter("student_no");
 
-        // 選択状態保持
+        if (entYearStr == null) entYearStr = "";
+        if (classNum == null) classNum = "";
+        if (subjectCd == null) subjectCd = "";
+        if (studentNo == null) studentNo = "";
+
         req.setAttribute("ent_year", entYearStr);
         req.setAttribute("class_num", classNum);
         req.setAttribute("subject_cd", subjectCd);
         req.setAttribute("student_no", studentNo);
 
-        TestDao tDao = new TestDao();
+        req.setAttribute("pageTitle", "成績参照");
 
-        // 4. 学生番号検索
-        if (studentNo != null && !studentNo.isEmpty()) {
-            studentNo = studentNo.trim();
-            Student student = stDao.get(studentNo);
+        // 学生番号検索
+        if (!studentNo.trim().isEmpty()) {
+            Student student = stDao.get(studentNo.trim());
 
-            if (student != null) {
-                if (student.getSchool() != null && student.getSchool().getCd().equals(school.getCd())) {
-                    req.setAttribute("student", student);
+            req.setAttribute("pageTitle", "成績一覧（学生）");
 
-                    TestListStudentDAO tlsDao = new TestListStudentDAO();
-                    List<TestScore> tests = tlsDao.filter(student);
+            if (student != null && student.getSchool() != null
+                    && student.getSchool().getCd().equals(school.getCd())) {
 
-                    if (tests != null && !tests.isEmpty()) {
-                        req.setAttribute("tests", tests);
-                    } else {
-                        req.setAttribute("error", "成績情報が存在しませんでした");
-                    }
+                req.setAttribute("student", student);
+
+                TestListStudentDAO tlsDao = new TestListStudentDAO();
+                List<TestScore> tests = tlsDao.filter(student);
+
+                if (tests != null && !tests.isEmpty()) {
+                    req.setAttribute("tests", tests);
                 } else {
-                    req.setAttribute("error", "他校の学生データです");
+                    req.setAttribute("searchError", "成績情報が存在しませんでした");
                 }
+
             } else {
-                req.setAttribute("error", "学生情報が存在しませんでした");
+                // 見本に合わせて、入力した学生番号はそのまま残す
+                Student dummy = new Student();
+                dummy.setNo(studentNo.trim());
+                dummy.setName("");
+                req.setAttribute("student", dummy);
+
+                req.setAttribute("searchError", "成績情報が存在しませんでした");
             }
 
-        // 5. 科目検索
-        } else if (entYearStr != null && !entYearStr.isEmpty()) {
-            try {
-                int entYear = Integer.parseInt(entYearStr);
-                Subject subject = sdao.get(school, subjectCd);
+            return "score_search.jsp";
+        }
 
-                if (subject == null) {
-                    req.setAttribute("error", "科目を選択してください");
-                } else {
-                    List<TestScore> list = tDao.filter(entYear, classNum, subject, 1, school);
+        // 科目検索が触られたか
+        boolean subjectSearchTried =
+                !entYearStr.isEmpty() || !classNum.isEmpty() || !subjectCd.isEmpty();
 
-                    if (list != null && !list.isEmpty()) {
-                        req.setAttribute("tests", list);
-                        req.setAttribute("subject", subject);
-                    } else {
-                        req.setAttribute("error", "成績情報が存在しませんでした");
-                    }
-                }
-            } catch (NumberFormatException e) {
-                req.setAttribute("error", "入学年度を正しく選択してください");
+        if (subjectSearchTried) {
+            boolean entYearOk = !entYearStr.isEmpty() && !"0".equals(entYearStr);
+            boolean classOk = !classNum.isEmpty() && !"0".equals(classNum);
+            boolean subjectOk = !subjectCd.isEmpty() && !"0".equals(subjectCd);
+
+            if (!(entYearOk && classOk && subjectOk)) {
+                req.setAttribute("conditionError", "入学年度とクラスと科目を選択してください");
+                return "score_search.jsp";
+            }
+
+            int entYear = Integer.parseInt(entYearStr);
+            Subject subject = subDao.get(school, subjectCd);
+
+            req.setAttribute("pageTitle", "成績一覧（科目）");
+            req.setAttribute("subject", subject);
+
+            if (subject == null) {
+                req.setAttribute("searchError", "学生情報が存在しませんでした");
+                return "score_search.jsp";
+            }
+
+            List<TestScore> tests = testDao.filter(entYear, classNum, subject, 1, school);
+
+            if (tests != null && !tests.isEmpty()) {
+                req.setAttribute("tests", tests);
+            } else {
+                req.setAttribute("searchError", "学生情報が存在しませんでした");
             }
         }
 
