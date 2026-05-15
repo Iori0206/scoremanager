@@ -5,21 +5,48 @@
     <c:param name="title">科目情報変更</c:param>
 
     <c:param name="content">
-        <section class="me-4" style="width: 100%; max-width: 1040px;">
-            <h2 class="h3 mb-4 fw-normal bg-secondary bg-opacity-10 py-3 px-4"
-                style="width: 100%; max-width: 1040px;">
-                科目情報変更
-            </h2>
+        <style>
+            .subject-done-page {
+                width: 100%;
+                max-width: 1100px;
+            }
 
-            <div class="alert alert-success"
-                 role="alert"
-                 style="width: 100%; max-width: 780px;">
-                変更が完了しました
-            </div>
+            .subject-done-title {
+                background: #f1f1f1;
+                padding: 12px 22px;
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 22px;
+            }
 
-            <div class="mt-4" style="width: 100%; max-width: 780px;">
+            .subject-done-message {
+                width: 100%;
+                max-width: 820px;
+                background: #9fd3b0;
+                color: #2e5339;
+                padding: 10px 14px;
+                font-size: 14px;
+            }
+
+            .subject-done-link-row {
+                margin-top: 70px;
+            }
+
+            .subject-done-link-row a {
+                color: #2f6df6;
+                text-decoration: underline;
+                font-size: 13px;
+            }
+        </style>
+
+        <div class="subject-done-page">
+            <div class="subject-done-title">科目情報変更</div>
+
+            <div class="subject-done-message">変更が完了しました</div>
+
+            <div class="subject-done-link-row">
                 <a href="SubjectList.action">科目一覧</a>
             </div>
-        </section>
+        </div>
     </c:param>
 </c:import>

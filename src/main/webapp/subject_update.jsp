@@ -3,97 +3,108 @@
 
 <c:import url="/common/base.jsp">
     <c:param name="title">科目情報変更</c:param>
+
     <c:param name="content">
         <style>
-            /* コンテンツエリア全体のレイアウト調整 */
-            .main-content {
-                padding: 0 20px 20px 40px;
-                font-family: "Yu Gothic", "Meiryo", sans-serif;
+            .subject-form-page {
+                width: 100%;
+                max-width: 1100px;
             }
-            /* セクションタイトルの背景グレー設定（画像a5c0b5参照） */
-            .title-box {
-                background-color: #f8f9fa;
-                padding: 15px;
-                font-size: 20px;
+
+            .subject-form-title {
+                background: #f1f1f1;
+                padding: 12px 22px;
+                font-size: 18px;
                 font-weight: bold;
-                border-radius: 4px;
-                margin-bottom: 30px;
+                margin-bottom: 22px;
             }
-            /* 入力項目のラベルスタイル */
-            .form-label {
+
+            .subject-form-label {
                 display: block;
                 margin-bottom: 8px;
-                font-size: 14px;
                 color: #666;
+                font-size: 14px;
             }
-            /* 入力フィールド：画像に合わせて幅を制限 */
-            .custom-input {
+
+            .subject-code-view {
                 width: 100%;
-                max-width: 600px;
-                padding: 10px;
+                max-width: 980px;
+                margin-bottom: 10px;
+                font-size: 14px;
+                color: #333;
+            }
+
+            .subject-form-input {
+                width: 100%;
+                max-width: 980px;
+                padding: 10px 12px;
                 border: 1px solid #ced4da;
                 border-radius: 4px;
-                margin-bottom: 25px;
                 font-size: 14px;
-                background-color: #fff;
+                box-sizing: border-box;
+                margin-bottom: 10px;
             }
-            /* 読み取り専用（科目コード）のスタイル */
-            .custom-input:disabled, .custom-input[readonly] {
-                background-color: #e9ecef;
-                color: #495057;
+
+            .subject-form-error {
+                color: orange;
+                font-size: 13px;
+                margin-bottom: 20px;
             }
-            /* 青色の「変更して終了」ボタン */
-            .btn-update {
-                background-color: #007bff;
-                color: white;
+
+            .subject-form-btn {
+                background-color: #0d6efd;
+                color: #fff;
                 border: none;
-                padding: 10px 25px;
                 border-radius: 4px;
+                padding: 8px 18px;
                 font-size: 14px;
                 cursor: pointer;
             }
-            .btn-update:hover {
-                background-color: #0069d9;
-            }
-            /* 戻るリンク */
-            .back-link {
-                display: block;
-                margin-top: 15px;
-                color: #4a76d1;
+
+            .subject-form-back {
+                display: inline-block;
+                margin-top: 14px;
+                color: #2f6df6;
                 text-decoration: underline;
                 font-size: 13px;
             }
-            /* 著作権表記フッター */
-            .footer-copy {
-                text-align: center;
-                margin-top: 100px;
-                color: #888;
-                font-size: 12px;
-                line-height: 1.5;
-            }
         </style>
 
-        <div class="main-content">
-            <div class="title-box">科目情報変更</div>
+        <c:set var="displayCd" value="${empty cd ? subject.cd : cd}" />
+        <c:set var="displayName" value="${empty name ? subject.name : name}" />
+
+        <div class="subject-form-page">
+            <div class="subject-form-title">科目情報変更</div>
 
             <form action="SubjectUpdateExecute.action" method="post">
-                <label class="form-label">科目コード</label>
-                <input type="text" name="cd" value="${subject.cd}" class="custom-input" readonly>
+                <label class="subject-form-label">科目コード</label>
+                <div class="subject-code-view">${displayCd}</div>
+                <input type="hidden" name="cd" value="${displayCd}">
 
-                <label class="form-label">科目名</label>
-                <input type="text" name="name" value="${subject.name}" class="custom-input" required>
+                <c:if test="${not empty notFoundError}">
+                    <div class="subject-form-error">${notFoundError}</div>
+                </c:if>
+
+                <label class="subject-form-label">科目名</label>
+                <input
+                    type="text"
+                    name="name"
+                    class="subject-form-input"
+                    value="${displayName}"
+                    placeholder="科目名を入力してください"
+                    maxlength="20"
+                    required>
+
+                <c:if test="${not empty nameError}">
+                    <div class="subject-form-error">${nameError}</div>
+                </c:if>
 
                 <div>
-                    <button type="submit" class="btn-update">変更して終了</button>
+                    <button type="submit" class="subject-form-btn">変更</button>
                 </div>
             </form>
 
-            <a href="SubjectList.action" class="back-link">戻る</a>
-
-            <div class="footer-copy">
-                © 2023 TIC<br>
-                大原学園
-            </div>
+            <a href="SubjectList.action" class="subject-form-back">戻る</a>
         </div>
     </c:param>
 </c:import>
