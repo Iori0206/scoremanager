@@ -1,9 +1,11 @@
 package action;
 
 import bean.Student;
+import bean.Teacher;
 import dao.StudentDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import tool.Action;
 
 public class StudentUpdateExecuteAction extends Action {
@@ -18,6 +20,10 @@ public class StudentUpdateExecuteAction extends Action {
         // チェックボックスはチェックがないと null が返るため判定が必要
         boolean isAttend = request.getParameter("is_attend") != null;
 
+        // セッションからログインユーザー（教員）情報を取得
+        HttpSession session = request.getSession();
+        Teacher teacher = (Teacher) session.getAttribute("user");
+
         // 2. Beanにセット
         Student student = new Student();
         student.setNo(no);
@@ -25,6 +31,8 @@ public class StudentUpdateExecuteAction extends Action {
         student.setEntYear(entYear);
         student.setClassNum(classNum);
         student.setAttend(isAttend);
+        // ★重要：ログインユーザーの学校情報をセット
+        student.setSchool(teacher.getSchool());
 
         // 3. DAOを使ってDBを更新
         StudentDao sDao = new StudentDao();
