@@ -75,26 +75,28 @@
                         </thead>
                         <tbody>
                             <c:forEach var="t" items="${tests}">
-                                <tr>
-                                    <td>${ent_year}</td>
-                                    <td>${class_num}</td>
-                                    <td>${t.studentNo}</td>
-                                    <td>${t.studentName}</td>
-                                    <td>
-                                        <input type="number"
-                                               name="point_${t.studentNo}"
-                                               value="${t.point == -1 ? '' : t.point}"
-                                               min="0" max="100"
-                                               class="form-control d-inline-block">
+    <tr>
+        <td>${ent_year}</td>
+        <td>${class_num}</td>
+        <td>${t.studentNo}</td>
+        <td>${t.studentName}</td>
+        <td>
+            <input type="hidden" name="studentNoList" value="${t.studentNo}">
 
-                                        <c:if test="${not empty pointErrors[t.studentNo]}">
-                                            <div class="text-warning small mt-1">
-                                                ${pointErrors[t.studentNo]}
-                                            </div>
-                                        </c:if>
-                                    </td>
-                                </tr>
-                            </c:forEach>
+            <input type="number"
+                   name="point_${t.studentNo}"
+                   value="${t.point == -1 ? '' : t.point}"
+                   min="0" max="100"
+                   class="form-control d-inline-block">
+
+            <c:if test="${not empty pointErrors[t.studentNo]}">
+                <div class="text-warning small mt-1">
+                    ${pointErrors[t.studentNo]}
+                </div>
+            </c:if>
+        </td>
+    </tr>
+</c:forEach>
                         </tbody>
                     </table>
 

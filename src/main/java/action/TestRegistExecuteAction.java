@@ -51,39 +51,44 @@ public class TestRegistExecuteAction extends Action {
         Subject subject = subjectDao.get(school, f3);
 
         StudentDao studentDao = new StudentDao();
-        List<Student> students = studentDao.filter(school, entYear, f2, true);
 
         List<TestScore> testList = new ArrayList<>();
         Map<String, String> pointErrors = new HashMap<>();
 
-        for (Student student : students) {
-            String pointStr = request.getParameter("point_" + student.getNo());
+        // 画面に出ていた学生番号をそのまま受け取る
+        String[] studentNoList = request.getParameterValues("studentNoList");
 
-            TestScore ts = new TestScore();
-            ts.setStudent(student);
-            ts.setSubject(subject);
-            ts.setSchool(school);
-            ts.setNum(num);
+        if (studentNoList != null) {
+            for (String studentNo : studentNoList) {
+                Student student = studentDao.get(studentNo);
+                String pointStr = request.getParameter("point_" + studentNo);
 
-            if (pointStr == null || pointStr.isEmpty()) {
-                ts.setPoint(-1);
-            } else {
-                try {
-                    int point = Integer.parseInt(pointStr);
+                TestScore ts = new TestScore();
+                ts.setStudent(student);
+                ts.setSubject(subject);
+                ts.setSchool(school);
+                ts.setNum(num);
 
-                    if (point < 0 || point > 100) {
-                        pointErrors.put(student.getNo(), "0～100の範囲で入力してください");
-                        ts.setPoint(-1);
-                    } else {
-                        ts.setPoint(point);
-                    }
-                } catch (NumberFormatException e) {
-                    pointErrors.put(student.getNo(), "整数で入力してください");
+                if (pointStr == null || pointStr.isEmpty()) {
                     ts.setPoint(-1);
-                }
-            }
+                } else {
+                    try {
+                        int point = Integer.parseInt(pointStr);
 
-            testList.add(ts);
+                        if (point < 0 || point > 100) {
+                            pointErrors.put(studentNo, "0～100の範囲で入力してください");
+                            ts.setPoint(-1);
+                        } else {
+                            ts.setPoint(point);
+                        }
+                    } catch (NumberFormatException e) {
+                        pointErrors.put(studentNo, "整数で入力してください");
+                        ts.setPoint(-1);
+                    }
+                }
+
+                testList.add(ts);
+            }
         }
 
         if (!pointErrors.isEmpty()) {
@@ -95,11 +100,14 @@ public class TestRegistExecuteAction extends Action {
                 entYearList.add(y);
             }
 
+            TestDao testDao = new TestDao();
+            List<TestScore> tests = testDao.filter(entYear, f2, subject, num, school);
+
             request.setAttribute("subjects", subjectDao.filter(school));
             request.setAttribute("class_num_list", classNumList);
             request.setAttribute("ent_year_list", entYearList);
 
-            request.setAttribute("tests", testList);
+            request.setAttribute("tests", tests);
             request.setAttribute("subject", subject);
             request.setAttribute("subject_cd", f3);
             request.setAttribute("ent_year", entYear);
