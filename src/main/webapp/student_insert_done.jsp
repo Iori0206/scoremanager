@@ -6,17 +6,21 @@
 
     <c:param name="content">
         <section class="me-4">
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
-                学生情報登録
-            </h2>
-
-            <div class="alert alert-success mt-4 mb-4" role="alert">
-                登録が完了しました
+            <%-- タイトルエリア：fw-bold を追加し、余白を py-3 px-4 に調整 --%>
+            <div class="bg-secondary bg-opacity-10 py-3 px-4 mb-4">
+                <h2 class="h3 mb-0 fw-bold">学生情報登録</h2>
             </div>
 
-            <div class="mt-3">
-                <a href="StudentInsert.action" class="me-4">戻る</a>
-                <a href="StudentList.action">学生一覧</a>
+            <%-- 完了メッセージ --%>
+            <div class="ms-4">
+                <div class="alert alert-success mt-4 mb-4 w-75" role="alert">
+                    登録が完了しました
+                </div>
+
+                <div class="mt-3">
+                    <a href="StudentInsert.action" class="me-4 text-decoration-none">戻る</a>
+                    <a href="StudentList.action" class="text-decoration-none">学生一覧</a>
+                </div>
             </div>
         </section>
     </c:param>

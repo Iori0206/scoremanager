@@ -6,70 +6,77 @@
 
     <c:param name="content">
         <section class="me-4">
-            <%-- No.1 画面タイトル --%>
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">
-                学生情報登録
-            </h2>
+            <%-- No.1 画面タイトル：fw-bold で太く修正 --%>
+            <div class="bg-secondary bg-opacity-10 py-3 px-4 mb-4">
+                <h2 class="h3 mb-0 fw-bold">学生情報登録</h2>
+            </div>
 
-            <form action="StudentInsert.action" method="post" class="w-75">
+            <form action="StudentInsert.action" method="post" class="ms-4 w-75">
+                <%-- 入学年度 --%>
                 <div class="mb-3">
-                    <%-- No.2-3 入学年度 --%>
                     <label class="form-label">入学年度</label>
-                    <select name="ent_year" class="form-select">
-                        <option value="">--------</option>
-                        <c:forEach var="y" items="${ent_year_list}">
-                            <option value="${y}" ${y == ent_year ? "selected" : ""}>${y}</option>
-                        </c:forEach>
-                    </select>
+                    <div class="col-md-5">
+                        <select name="ent_year" class="form-select">
+                            <option value="">--------</option>
+                            <c:forEach var="y" items="${ent_year_list}">
+                                <option value="${y}" ${y == ent_year ? "selected" : ""}>${y}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
                     <c:if test="${not empty entYearError}">
-                        <div class="text-warning small mt-1">${entYearError}</div>
+                        <div class="text-danger small mt-1">${entYearError}</div>
                     </c:if>
                 </div>
 
+                <%-- 学生番号 --%>
                 <div class="mb-3">
-                    <%-- No.4-5 学生番号 --%>
                     <label class="form-label">学生番号</label>
-                    <input type="text" name="no" class="form-control" value="${no}"
-                           placeholder="学生番号を入力してください" 
-                           maxlength="10" required>
+                    <div class="col-md-7">
+                        <input type="text" name="no" class="form-control" value="${no}"
+                               placeholder="学生番号を入力してください" 
+                               maxlength="10" required>
+                    </div>
                     <c:if test="${not empty noError}">
-                        <div class="text-warning small mt-1">${noError}</div>
+                        <div class="text-danger small mt-1">${noError}</div>
                     </c:if>
                 </div>
 
+                <%-- 氏名 --%>
                 <div class="mb-3">
-                    <%-- No.6-7 氏名 --%>
                     <label class="form-label">氏名</label>
-                    <input type="text" name="name" class="form-control" value="${name}"
-                           placeholder="氏名を入力してください" 
-                           maxlength="30" required>
+                    <div class="col-md-9">
+                        <input type="text" name="name" class="form-control" value="${name}"
+                               placeholder="氏名を入力してください" 
+                               maxlength="30" required>
+                    </div>
                     <c:if test="${not empty nameError}">
-                        <div class="text-warning small mt-1">${nameError}</div>
+                        <div class="text-danger small mt-1">${nameError}</div>
                     </c:if>
                 </div>
 
-                <div class="mb-3">
-                    <%-- No.8-9 クラス --%>
+                <%-- クラス --%>
+                <div class="mb-4">
                     <label class="form-label">クラス</label>
-                    <select name="class_num" class="form-select">
-                        <option value="">--------</option>
-                        <c:forEach var="c" items="${class_num_list}">
-                            <option value="${c}" ${c == class_num ? "selected" : ""}>${c}</option>
-                        </c:forEach>
-                    </select>
+                    <div class="col-md-5">
+                        <select name="class_num" class="form-select">
+                            <option value="">--------</option>
+                            <c:forEach var="c" items="${class_num_list}">
+                                <option value="${c}" ${c == class_num ? "selected" : ""}>${c}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
                     <c:if test="${not empty classNumError}">
-                        <div class="text-warning small mt-1">${classNumError}</div>
+                        <div class="text-danger small mt-1">${classNumError}</div>
                     </c:if>
                 </div>
 
-                <div class="mt-4">
-                    <%-- No.10 登録して終了ボタン --%>
-                    <button type="submit" class="btn btn-secondary">登録して終了</button>
+                <%-- ボタンエリア --%>
+                <div class="mt-4 pt-2">
+                    <button type="submit" class="btn btn-secondary px-4">登録して終了</button>
                 </div>
 
                 <div class="mt-3">
-                    <%-- No.11 戻るリンク --%>
-                    <a href="StudentList.action">戻る</a>
+                    <a href="StudentList.action" class="text-decoration-none">戻る</a>
                 </div>
             </form>
         </section>

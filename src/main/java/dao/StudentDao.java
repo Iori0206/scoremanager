@@ -140,19 +140,44 @@ public class StudentDao extends DAO {
     }
 
     /**
-     * 学生登録
+     * 学生保存（登録・更新）
+     * ★重複エラー対策：既存データがあればUPDATE、なければINSERTを実行
      */
     public boolean save(Student student) throws Exception {
-        String sql = "INSERT INTO student (no, name, ent_year, class_num, is_attend, school_cd) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection con = getConnection();
-             PreparedStatement st = con.prepareStatement(sql)) {
-            st.setString(1, student.getNo());
-            st.setString(2, student.getName());
-            st.setInt(3, student.getEntYear());
-            st.setString(4, student.getClassNum());
-            st.setBoolean(5, student.isAttend());
-            st.setString(6, student.getSchool().getCd());
-            return st.executeUpdate() == 1;
+        // 既存データの有無を確認
+        Student existing = get(student.getNo());
+
+        try (Connection con = getConnection()) {
+            String sql;
+            PreparedStatement st;
+
+            if (existing == null) {
+                // --- 存在しない場合は新規登録 (INSERT) ---
+                sql = "INSERT INTO student (no, name, ent_year, class_num, is_attend, school_cd) VALUES (?, ?, ?, ?, ?, ?)";
+                st = con.prepareStatement(sql);
+                st.setString(1, student.getNo());
+                st.setString(2, student.getName());
+                st.setInt(3, student.getEntYear());
+                st.setString(4, student.getClassNum());
+                st.setBoolean(5, student.isAttend());
+                st.setString(6, student.getSchool().getCd());
+            } else {
+                // --- 存在する場合は更新 (UPDATE) ---
+                // WHERE句に no と school_cd を指定して特定
+                sql = "UPDATE student SET name = ?, ent_year = ?, class_num = ?, is_attend = ? WHERE no = ? AND school_cd = ?";
+                st = con.prepareStatement(sql);
+                st.setString(1, student.getName());
+                st.setInt(2, student.getEntYear());
+                st.setString(3, student.getClassNum());
+                st.setBoolean(4, student.isAttend());
+                st.setString(5, student.getNo());
+                st.setString(6, student.getSchool().getCd());
+            }
+
+            int count = st.executeUpdate();
+            st.close();
+
+            return count > 0;
         }
     }
 
@@ -173,6 +198,7 @@ public class StudentDao extends DAO {
                 student.setEntYear(rs.getInt("ent_year"));
                 student.setClassNum(rs.getString("class_num"));
                 student.setAttend(rs.getBoolean("is_attend"));
+                
                 School school = new School();
                 school.setCd(rs.getString("school_cd"));
                 student.setSchool(school);

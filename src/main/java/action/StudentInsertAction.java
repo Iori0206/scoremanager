@@ -29,7 +29,7 @@ public class StudentInsertAction extends Action {
             return "login.jsp";
         }
 
-        // 2. 学校情報の取得（教員に紐づく学校コードを使用）
+        // 2. 学校情報の取得
         School school = teacher.getSchool();
         if (school == null) {
             school = new School();
@@ -38,15 +38,10 @@ public class StudentInsertAction extends Action {
         }
 
         // 3. 表示用データの準備（GET/POST共通）
-        
-        // --- クラス一覧の取得 ---
-        // ログインユーザの学校に該当する「クラス番号テーブル」から値を取得
         ClassNumDao classNumDao = new ClassNumDao();
         List<String> classNumList = classNumDao.filter(school); 
         request.setAttribute("class_num_list", classNumList);
 
-        // --- 入学年度一覧の取得 ---
-        // 今年を基準に前後10年のリストを生成
         List<Integer> entYearList = new ArrayList<>();
         int currentYear = LocalDate.now().getYear();
         for (int y = currentYear - 10; y <= currentYear + 10; y++) {
@@ -60,8 +55,6 @@ public class StudentInsertAction extends Action {
         }
 
         // 5. 登録処理（POSTリクエスト）
-        
-        // リクエストパラメータの取得
         String entYearStr = request.getParameter("ent_year");
         String no = request.getParameter("no");
         String name = request.getParameter("name");
@@ -86,8 +79,12 @@ public class StudentInsertAction extends Action {
             hasError = true;
         }
 
+        // ★氏名のチェック：未入力および30文字制限
         if (name == null || name.isEmpty()) {
             request.setAttribute("nameError", "氏名を入力してください");
+            hasError = true;
+        } else if (name.length() > 30) { // データベースの VARCHAR(30) に合わせた制限
+            request.setAttribute("nameError", "氏名は30文字以内で入力してください");
             hasError = true;
         }
 
@@ -116,7 +113,7 @@ public class StudentInsertAction extends Action {
         student.setName(name);
         student.setEntYear(entYear);
         student.setClassNum(classNum);
-        student.setAttend(true); // 新規登録時は「在学中」
+        student.setAttend(true); 
         student.setSchool(school);
 
         studentDao.save(student);

@@ -8,93 +8,100 @@
 
     <c:param name="content">
         <section class="me-4">
-            <h2 class="h3 mb-3 fw-normal bg-secondary bg-opacity-10 py-2 px-4">学生管理</h2>
+            <%-- ① タイトルエリア：fw-bold を追加して太く修正 --%>
+            <div class="bg-secondary bg-opacity-10 py-3 px-4 mb-1">
+                <h2 class="h3 mb-0 fw-bold">学生管理</h2>
+            </div>
 
-            <form action="StudentList.action" method="get" class="mb-4">
-                <div class="row mb-3">
+            <%-- ⑧ 新規登録リンク --%>
+            <div class="text-end mb-1">
+                <a href="StudentInsert.action" class="text-primary text-decoration-underline" style="font-size: 0.9rem;">新規登録</a>
+            </div>
 
-                    <div class="col-3">
-                        <label class="form-label">入学年度</label>
+            <%-- ②〜⑨ 検索フィルタエリア --%>
+            <form action="StudentList.action" method="get" class="p-4 border rounded mb-4 bg-white shadow-sm">
+                <div class="row align-items-end">
+                    <%-- ②④ 入学年度 --%>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">入学年度</label>
                         <select name="f1" class="form-select">
-                            <option value="0">------</option>
+                            <option value="0">-------</option>
                             <c:forEach var="y" items="${ent_year_list}">
                                 <option value="${y}" ${y == f1 ? "selected" : ""}>${y}</option>
                             </c:forEach>
                         </select>
                     </div>
 
-                    <div class="col-3">
-                        <label class="form-label">クラス</label>
+                    <%-- ③⑤ クラス --%>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">クラス</label>
                         <select name="f2" class="form-select">
-                            <option value="0">------</option>
+                            <option value="0">-------</option>
                             <c:forEach var="c" items="${class_num_list}">
                                 <option value="${c}" ${c == f2 ? "selected" : ""}>${c}</option>
                             </c:forEach>
                         </select>
                     </div>
 
-                    <div class="col-3 d-flex align-items-end">
-                        <div class="form-check">
+                    <%-- ⑥⑦ 在学中 --%>
+                    <div class="col-md-2">
+                        <div class="form-check mb-2">
                             <input type="checkbox" name="f3" value="t"
-                                   class="form-check-input"
+                                   class="form-check-input" id="in_school_check"
                                    ${f3 ? "checked" : ""}>
-                            <label class="form-check-label">在学中</label>
+                            <label class="form-check-label" for="in_school_check">在学中</label>
                         </div>
                     </div>
 
-                    <div class="col-3 d-flex align-items-end">
-                        <button class="btn btn-primary" id="filter_button">絞込み</button>
+                    <%-- ⑨ 絞込みボタン --%>
+                    <div class="col-md-2 text-end">
+                        <button type="submit" class="btn btn-secondary px-4 w-100" id="filter_button" style="background-color: #6c757d; border: none;">絞込み</button>
                     </div>
                 </div>
             </form>
 
-            <div class="mb-3">
-                <a href="StudentInsert.action" class="btn btn-success">新規登録</a>
-            </div>
+            <%-- メッセージ表示 --%>
+            <c:if test="${empty students}">
+                <p class="ms-1 mb-3 text-danger">学生情報が存在しませんでした</p>
+            </c:if>
 
-            <p>検索結果：${fn:length(students)}件</p>
+            <%-- No.10 検索結果件数 --%>
+            <p class="ms-1 mb-3">検索結果：${fn:length(students)}件</p>
 
-            <table class="table table-bordered table-striped">
-                <thead class="table-secondary">
-                    <tr>
-                        <th>入学年度</th>
-                        <th>学生番号</th>
-                        <th>氏名</th>
-                        <th>クラス</th>
-                        <th class="text-center">在学中</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:choose>
-                        <c:when test="${empty students}">
+            <%-- テーブルエリア --%>
+            <c:if test="${not empty students}">
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 15%;">入学年度</th>
+                            <th style="width: 15%;">学生番号</th>
+                            <th style="width: 25%;">氏名</th>
+                            <th style="width: 15%;">クラス</th>
+                            <th class="text-center" style="width: 15%;">在学中</th>
+                            <th style="width: 15%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="s" items="${students}">
                             <tr>
-                                <td colspan="6" class="text-center">学生情報が存在しませんでした</td>
+                                <td>${s.entYear}</td>
+                                <td>${s.no}</td>
+                                <td>${s.name}</td>
+                                <td>${s.classNum}</td>
+                                <td class="text-center">
+                                    <c:choose>
+                                        <c:when test="${s.attend}">〇</c:when>
+                                        <c:otherwise>×</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td class="text-center">
+                                    <a href="StudentUpdate.action?no=${s.no}" class="text-primary text-decoration-underline">変更</a>
+                                </td>
                             </tr>
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="s" items="${students}">
-                                <tr>
-                                    <td>${s.entYear}</td>
-                                    <td>${s.no}</td>
-                                    <td>${s.name}</td>
-                                    <td>${s.classNum}</td>
-                                    <td class="text-center">
-                                        <%-- 修正箇所：isAttend() メソッドに対応するプロパティ名は attend --%>
-                                        <c:choose>
-                                            <c:when test="${s.attend}">〇</c:when>
-                                            <c:otherwise>×</c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <a href="StudentUpdate.action?no=${s.no}">変更</a>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
-                </tbody>
-            </table>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </c:if>
         </section>
     </c:param>
 </c:import>
