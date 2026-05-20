@@ -34,7 +34,7 @@ public class ScoreListAction extends Action {
 
         // --- 1. プルダウン用データの準備 ---
 
-        // 入学年度一覧：StudentDaoの既存メソッドを使用して、DBにある年度を取得する
+        // 入学年度一覧の取得
         List<Integer> entYearList = stDao.filterEntYear(school);
         req.setAttribute("ent_year_list", entYearList);
 
@@ -53,21 +53,26 @@ public class ScoreListAction extends Action {
         String subjectCd = req.getParameter("f3");    // 科目
         String studentNo = req.getParameter("f4");    // 学生番号
 
-        // 型変換用の変数
+        // 入学年度の型変換
         int entYear = 0;
         if (entYearStr != null && !entYearStr.isEmpty() && !"0".equals(entYearStr)) {
             entYear = Integer.parseInt(entYearStr);
         }
 
-        // JSPでの選択状態維持用（f1をintで渡すとJSPの比較が確実になります）
+        // クラスが未選択("0")の場合は null に変換して、DAO側で条件から外せるようにする
+        if ("0".equals(classNum) || "".equals(classNum)) {
+            classNum = null;
+        }
+
+        // JSPでの選択状態維持用
         req.setAttribute("f1", entYear);
-        req.setAttribute("f2", classNum);
+        req.setAttribute("f2", (classNum == null) ? "0" : classNum);
         req.setAttribute("f3", subjectCd);
         req.setAttribute("f4", studentNo);
 
         // --- 3. 検索実行処理 ---
 
-        // A. 学生番号が入力されている場合（優先）
+        // A. 学生番号が入力されている場合（最優先）
         if (studentNo != null && !studentNo.isEmpty()) {
             studentNo = studentNo.trim();
             Student student = stDao.get(studentNo);
@@ -87,26 +92,31 @@ public class ScoreListAction extends Action {
                 req.setAttribute("error", "学生情報が見つからないか、参照権限がありません。");
             }
         } 
-        // B. 入学年度・クラス・科目が指定されている場合
-        else if (entYear != 0) {
-            // 科目が未選択（0またはnull）でないかチェック
-            if (subjectCd == null || subjectCd.isEmpty() || "0".equals(subjectCd)) {
-                req.setAttribute("error", "科目を選択してください。");
-            } else {
-                Subject subject = sDao.get(school, subjectCd);
-                if (subject != null) {
-                    // 成績一覧を取得（1回目・2回目の全データ、または仕様に合わせてフィルタ）
-                    List<TestScore> list = dao.filter(entYear, classNum, subject, 0, school); // 0は「全て」などの指定を想定
-                    
-                    if (list != null && !list.isEmpty()) {
-                        req.setAttribute("tests", list);
-                    } else {
-                        req.setAttribute("error", "成績情報が存在しませんでした。");
+        // B. 入学年度・クラス・科目による検索の場合
+        else {
+            // ボタンが押された（リクエストパラメータが何かしら存在する）ときのみ検索を実行する
+            // ※初期表示でいきなりエラーを出さないための判定
+            if (entYearStr != null || classNum != null || subjectCd != null) {
+                
+                // 成績管理の仕様上、科目の選択が必須の場合はここでチェックする
+                if (subjectCd == null || subjectCd.isEmpty() || "0".equals(subjectCd)) {
+                    req.setAttribute("error", "科目を選択してください。");
+                } else {
+                    Subject subject = sDao.get(school, subjectCd);
+                    if (subject != null) {
+                        // entYearが0（未選択）、classNumがnullでもそのままDAOに引き渡して動的検索する
+                        List<TestScore> list = dao.filter(entYear, classNum, subject, 0, school); 
+                        
+                        if (list != null && !list.isEmpty()) {
+                            req.setAttribute("tests", list);
+                        } else {
+                            req.setAttribute("error", "成績情報が存在しませんでした。");
+                        }
                     }
                 }
             }
         }
 
-        return "score_search.jsp";
+        return "score_search.jsp"; // 成績検索用のJSP名（環境に合わせて微調整してください）
     }
 }

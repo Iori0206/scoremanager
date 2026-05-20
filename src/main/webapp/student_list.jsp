@@ -25,7 +25,8 @@
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">入学年度</label>
                         <select name="f1" class="form-select">
-                            <option value="0">-------</option>
+                            <%-- 修正点：f1が空、または"0"の時にselectedにする --%>
+                            <option value="0" ${empty f1 || f1 == '0' ? "selected" : ""}>-------</option>
                             <c:forEach var="y" items="${ent_year_list}">
                                 <option value="${y}" ${y == f1 ? "selected" : ""}>${y}</option>
                             </c:forEach>
@@ -36,7 +37,8 @@
                     <div class="col-md-4">
                         <label class="form-label small fw-bold">クラス</label>
                         <select name="f2" class="form-select">
-                            <option value="0">-------</option>
+                            <%-- 修正点：f2が空、または"0"の時にselectedにする --%>
+                            <option value="0" ${empty f2 || f2 == '0' ? "selected" : ""}>-------</option>
                             <c:forEach var="c" items="${class_num_list}">
                                 <option value="${c}" ${c == f2 ? "selected" : ""}>${c}</option>
                             </c:forEach>

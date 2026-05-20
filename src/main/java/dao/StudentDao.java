@@ -57,27 +57,34 @@ public class StudentDao extends DAO {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT * FROM student WHERE school_cd = ? ");
 
+        // 入学年度が指定されている場合のみ条件追加
         if (entYear != 0) {
             sql.append("AND ent_year = ? ");
         }
-        if (classNum != null && !classNum.isEmpty()) {
+        // クラスが指定されている場合のみ条件追加
+        if (classNum != null && !classNum.isEmpty() && !"0".equals(classNum)) {
             sql.append("AND class_num = ? ");
         }
+        
+        // OFF(false)の場合は、在学・卒業どちらの状態の学生も全件取得する対象にする
         if (isAttend) {
             sql.append("AND is_attend = true ");
         }
+
         sql.append("ORDER BY no ASC");
 
         try (Connection con = getConnection();
              PreparedStatement st = con.prepareStatement(sql.toString())) {
 
             int idx = 1;
+            // 共通の学校コードをセット
             st.setString(idx++, school.getCd());
 
+            // SQLの追加順と完全に一致させて値をセットする
             if (entYear != 0) {
                 st.setInt(idx++, entYear);
             }
-            if (classNum != null && !classNum.isEmpty()) {
+            if (classNum != null && !classNum.isEmpty() && !"0".equals(classNum)) {
                 st.setString(idx++, classNum);
             }
 
@@ -141,10 +148,8 @@ public class StudentDao extends DAO {
 
     /**
      * 学生保存（登録・更新）
-     * ★重複エラー対策：既存データがあればUPDATE、なければINSERTを実行
      */
     public boolean save(Student student) throws Exception {
-        // 既存データの有無を確認
         Student existing = get(student.getNo());
 
         try (Connection con = getConnection()) {
@@ -152,7 +157,6 @@ public class StudentDao extends DAO {
             PreparedStatement st;
 
             if (existing == null) {
-                // --- 存在しない場合は新規登録 (INSERT) ---
                 sql = "INSERT INTO student (no, name, ent_year, class_num, is_attend, school_cd) VALUES (?, ?, ?, ?, ?, ?)";
                 st = con.prepareStatement(sql);
                 st.setString(1, student.getNo());
@@ -162,8 +166,6 @@ public class StudentDao extends DAO {
                 st.setBoolean(5, student.isAttend());
                 st.setString(6, student.getSchool().getCd());
             } else {
-                // --- 存在する場合は更新 (UPDATE) ---
-                // WHERE句に no と school_cd を指定して特定
                 sql = "UPDATE student SET name = ?, ent_year = ?, class_num = ?, is_attend = ? WHERE no = ? AND school_cd = ?";
                 st = con.prepareStatement(sql);
                 st.setString(1, student.getName());
