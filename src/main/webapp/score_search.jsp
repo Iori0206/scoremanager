@@ -13,11 +13,10 @@
                 <c:if test="${not empty pageTitle}">${pageTitle}</c:if>
             </h2>
 
-            <!-- 検索枠 -->
             <div class="border rounded bg-white p-4">
 
-                <form action="ScoreSearch.action" method="get">
-                    <!-- 科目情報 -->
+                <!-- 科目検索フォーム -->
+                <form action="ScoreSearch.action" method="get" class="mb-0">
                     <div class="row align-items-end mb-3">
                         <div class="col-2">
                             <label class="form-label mb-0">科目情報</label>
@@ -64,16 +63,17 @@
                         </div>
                     </div>
 
-                    <!-- 科目条件不足エラーは枠の中 -->
                     <c:if test="${not empty conditionError}">
-                        <div class="mb-3" style="color:#f0ad4e; font-size:14px;">
+                        <div class="mb-2" style="color:#f0ad4e; font-size:14px;">
                             ${conditionError}
                         </div>
                     </c:if>
+                </form>
 
-                    <hr class="my-4">
+                <hr class="my-4">
 
-                    <!-- 学生情報 -->
+                <!-- 学生検索フォーム -->
+                <form action="ScoreSearch.action" method="get" class="mb-0">
                     <div class="row align-items-end mb-3">
                         <div class="col-2">
                             <label class="form-label mb-0">学生情報</label>
@@ -85,7 +85,8 @@
                                    name="student_no"
                                    class="form-control"
                                    value="${student_no}"
-                                   placeholder="学生番号を入力してください">
+                                   placeholder="学生番号を入力してください"
+                                   required>
                         </div>
 
                         <div class="col-2">
@@ -95,7 +96,7 @@
                 </form>
             </div>
 
-            <!-- 学生検索のときだけ氏名を枠の下に出す -->
+            <!-- 学生検索時のみ氏名表示 -->
             <c:if test="${not empty student}">
                 <div class="mt-3 mb-1" style="font-size:14px;">
                     氏名：
@@ -105,14 +106,14 @@
                 </div>
             </c:if>
 
-            <!-- データなしエラーは枠の下 -->
+            <!-- 枠の下のエラー -->
             <c:if test="${not empty searchError}">
                 <div class="mb-2" style="font-size:14px; color:#222;">
                     ${searchError}
                 </div>
             </c:if>
 
-            <!-- 初期表示のときだけ案内文 -->
+            <!-- 初期表示だけ案内文 -->
             <c:if test="${empty tests and empty conditionError and empty searchError and empty student}">
                 <div class="mt-3" style="color:#4fc3f7; font-size:14px;">
                     科目情報を選択または学生情報を入力して検索ボタンをクリックしてください
