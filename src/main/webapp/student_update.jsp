@@ -12,6 +12,17 @@
             </div>
 
             <form action="StudentUpdateExecute.action" method="post" class="ms-4 w-75">
+            
+                <%-- 入学年度 --%>
+                <div class="mb-4">
+                     <label class="form-label">入学年度</label>
+               <div class="col-md-9">
+                <%-- 見た目用のテキスト入力（変更不可にするため readonly を追加しています） --%>
+                <input type="text" class="form-control bg-light text-muted" 
+                     value="${student.entYear}" readonly>
+               </div>
+                <input type="hidden" name="ent_year" value="${student.entYear}">
+               </div>
                 
                 <%-- 学生番号 --%>
                 <div class="mb-4">
@@ -33,17 +44,6 @@
                     </div>
                 </div>
 
-                <%-- 入学年度 --%>
-                <div class="mb-4">
-                    <label class="form-label">入学年度</label>
-                    <div class="col-md-9">
-                        <select name="ent_year" class="form-select shadow-sm">
-                            <c:forEach var="y" items="${ent_year_list}">
-                                <option value="${y}" ${y == student.entYear ? 'selected' : ''}>${y}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
 
                 <%-- クラス --%>
                 <div class="mb-4">
