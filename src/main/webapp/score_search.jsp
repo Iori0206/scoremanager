@@ -82,11 +82,13 @@
                         <div class="col-4">
                             <label class="form-label">学生番号</label>
                             <input type="text"
-                                   name="student_no"
-                                   class="form-control"
-                                   value="${student_no}"
-                                   placeholder="学生番号を入力してください"
-                                   required>
+       								name="student_no"
+       								class="form-control"
+       								value="${student_no}"
+								       placeholder="学生番号を入力してください"
+       maxlength="10"
+       size="10"
+       required>
                         </div>
 
                         <div class="col-2">
