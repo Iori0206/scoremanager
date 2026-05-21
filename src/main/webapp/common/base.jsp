@@ -22,31 +22,32 @@
     border-right: 1px solid #ddd;
     padding: 1rem;
   }
+  
+  /* ─── 【重要】コンテンツエリア全体の余白と配置 ─── */
   .content-area {
     flex: 1;
-    padding: 2rem;
-    /* ログイン画面が中央に綺麗に収まるように flex 属性を追加 */
+    padding: 0px !important; /* 親要素の余白を完全ゼロにして最上部に密着させます */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* メニュー画面や管理画面など、通常のコンテンツは左寄せにするための調整 */
-  .content-area:has(section), .content-area:has(form:not([action="Login.action"])) {
     justify-content: flex-start;
     align-items: flex-start;
-    display: block;
+  }
+
+  /* ログイン画面（サイドバーがない時）だけ中央配置＆余白を戻す */
+  .layout:not(:has(.sidebar)) .content-area {
+    padding: 2rem !important;
+    justify-content: center;
+    align-items: center;
   }
 
   footer {
     text-align: center;
     padding: 0.5rem;
-    background: #e0e0e0; /* 画像に合わせたグレー背景に変更 */
+    background: #e0e0e0; /* 画像に合わせたグレー背景 */
     border-top: 1px solid #ddd;
   }
 
-  /* ─── 以下、ログインカード用のスタイルを追加 ─── */
+  /* ─── 以下、ログインカード用のスタイル ─── */
   .login-box {
     width: 460px;
     background: white;
@@ -130,11 +131,15 @@
 
 <body>
 
-<header class="d-flex justify-content-between align-items-center p-3 border-bottom">
-  <h2 class="m-0" style="font-weight: bold; color: #333;">得点管理システム</h2>
+<%-- 
+  【修正ポイント①】
+  最上部のヘッダーの「下線の境界線（border-bottom）」とお手本のグレーの帯（科目情報登録）が、
+  隙間なくピッタリくっつくように Bootstrap の内側余白（p-3）を「p-2」に狭め、下側のマージンをゼロに固定しました。
+--%>
+<header class="d-flex justify-content-between align-items-center p-2 border-bottom m-0">
+  <h2 class="m-0" style="font-weight: bold; color: #333; font-size: 24px; padding-left: 10px;">得点管理システム</h2>
 
-  <div>
-    <%-- ログインしている時だけユーザー名とログアウトボタンを表示 --%>
+  <div style="padding-right: 20px;">
     <c:if test="${not empty sessionScope.user}">
       ${sessionScope.user.name} 様　
       <a href="Logout.action">ログアウト</a>
@@ -144,7 +149,6 @@
 
 <div class="layout">
 
-  <%-- ログインしている時だけサイドバーを表示 --%>
   <c:if test="${not empty sessionScope.user}">
     <nav class="sidebar">
       <ul class="nav flex-column">
@@ -160,7 +164,6 @@
   </c:if>
 
   <main class="content-area">
-    <%-- 各JSPから送られてきた中身がここに展開されます --%>
     ${param.content}
   </main>
 
