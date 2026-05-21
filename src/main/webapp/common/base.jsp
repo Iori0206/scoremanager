@@ -11,6 +11,8 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    margin: 0;
+    padding: 0;
   }
   .layout {
     flex: 1;
@@ -23,19 +25,18 @@
     padding: 1rem;
   }
   
-  /* ─── 【重要】コンテンツエリア全体の余白と配置 ─── */
+  /* ─── コンテンツエリア（ログイン後は余白なしで左上詰めに密着） ─── */
   .content-area {
     flex: 1;
-    padding: 0px !important; /* 親要素の余白を完全ゼロにして最上部に密着させます */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
+    padding: 0px !important;
+    display: block;
   }
 
-  /* ログイン画面（サイドバーがない時）だけ中央配置＆余白を戻す */
+  /* ログイン画面（サイドバーがない時）だけ中央配置＆内側余白を適用 */
   .layout:not(:has(.sidebar)) .content-area {
     padding: 2rem !important;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
   }
@@ -43,11 +44,11 @@
   footer {
     text-align: center;
     padding: 0.5rem;
-    background: #e0e0e0; /* 画像に合わせたグレー背景 */
+    background: #e0e0e0;
     border-top: 1px solid #ddd;
   }
 
-  /* ─── 以下、ログインカード用のスタイル ─── */
+  /* ─── ログインカード用スタイル ─── */
   .login-box {
     width: 460px;
     background: white;
@@ -131,14 +132,8 @@
 
 <body>
 
-<%-- 
-  【修正ポイント①】
-  最上部のヘッダーの「下線の境界線（border-bottom）」とお手本のグレーの帯（科目情報登録）が、
-  隙間なくピッタリくっつくように Bootstrap の内側余白（p-3）を「p-2」に狭め、下側のマージンをゼロに固定しました。
---%>
 <header class="d-flex justify-content-between align-items-center p-2 border-bottom m-0">
   <h2 class="m-0" style="font-weight: bold; color: #333; font-size: 24px; padding-left: 10px;">得点管理システム</h2>
-
   <div style="padding-right: 20px;">
     <c:if test="${not empty sessionScope.user}">
       ${sessionScope.user.name} 様　
@@ -148,7 +143,6 @@
 </header>
 
 <div class="layout">
-
   <c:if test="${not empty sessionScope.user}">
     <nav class="sidebar">
       <ul class="nav flex-column">
@@ -166,7 +160,6 @@
   <main class="content-area">
     ${param.content}
   </main>
-
 </div>
 
 <footer>
